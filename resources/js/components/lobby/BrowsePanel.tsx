@@ -1,7 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import AchievementsPanel from '@/components/welcome/AchievementsPanel';
+import ActivePlayersPanel from '@/components/welcome/ActivePlayersPanel';
+import CommunityHighlightsPanel from '@/components/welcome/CommunityHighlightsPanel';
 import FriendsPanel from '@/components/welcome/FriendsPanel';
 import GameHistoryPanel from '@/components/welcome/GameHistoryPanel';
+import GlobalRecordsPanel from '@/components/welcome/GlobalRecordsPanel';
 import Leaderboard from '@/components/welcome/Leaderboard';
 import LiveGamesList from '@/components/welcome/LiveGamesList';
 import PlayerStatsPanel from '@/components/welcome/PlayerStatsPanel';
@@ -11,7 +14,7 @@ import { Eye, User, Users } from 'lucide-react';
 
 type ActiveGroup = 'none' | 'profile' | 'community' | 'watch';
 type ProfileTab = 'stats' | 'history' | 'achievements' | 'season' | 'solo';
-type CommunityTab = 'leaderboard' | 'friends';
+type CommunityTab = 'leaderboard' | 'friends' | 'highlights' | 'active' | 'records';
 
 function Divider({ label }: { label: string }) {
     return (
@@ -40,6 +43,9 @@ const PROFILE_TABS: { key: ProfileTab; label: string }[] = [
 const COMMUNITY_TABS: { key: CommunityTab; label: string }[] = [
     { key: 'leaderboard', label: 'leaderboard' },
     { key: 'friends', label: 'friends' },
+    { key: 'highlights', label: 'highlights' },
+    { key: 'active', label: 'active' },
+    { key: 'records', label: 'records' },
 ];
 
 export default function BrowsePanel({
@@ -126,6 +132,9 @@ export default function BrowsePanel({
                 onViewProfile={onViewProfile}
             />
         ),
+        'community-highlights': <CommunityHighlightsPanel playerId={playerId} />,
+        'community-active': <ActivePlayersPanel playerId={playerId} onViewProfile={onViewProfile} />,
+        'community-records': <GlobalRecordsPanel playerId={playerId} onViewProfile={onViewProfile} />,
         'watch': <LiveGamesList playerId={playerId} />,
     };
 
