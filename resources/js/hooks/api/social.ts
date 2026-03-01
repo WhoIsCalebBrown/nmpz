@@ -3,6 +3,7 @@ import type { AxiosInstance } from 'axios';
 export function socialApi(client: AxiosInstance, playerId: string) {
     return {
         fetchPlayerProfile: (targetPlayerId: string) => client.get(`/players/${targetPlayerId}/profile`),
+        fetchPlayerMilestones: (targetPlayerId: string) => client.get(`/players/${targetPlayerId}/milestones`),
         fetchFriends: () => client.get(`/players/${playerId}/friends`),
         sendFriendRequest: (receiverId: string) =>
             client.post(`/players/${playerId}/friends`, { receiver_id: receiverId }),
