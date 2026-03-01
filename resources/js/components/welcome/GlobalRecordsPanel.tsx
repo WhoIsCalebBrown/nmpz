@@ -12,8 +12,8 @@ type Records = {
     highest_elo: RecordEntry | null;
     most_perfect_rounds: RecordEntry | null;
     most_games_played: RecordEntry | null;
-    highest_single_round: RecordEntry | null;
-    most_wins: RecordEntry | null;
+    highest_single_round_score: RecordEntry | null;
+    closest_guess: RecordEntry | null;
 };
 
 const RECORD_LABELS: Record<string, string> = {
@@ -21,8 +21,8 @@ const RECORD_LABELS: Record<string, string> = {
     highest_elo: 'Highest ELO',
     most_perfect_rounds: 'Most Perfect Rounds',
     most_games_played: 'Most Games Played',
-    highest_single_round: 'Highest Round Score',
-    most_wins: 'Most Wins',
+    highest_single_round_score: 'Highest Round Score',
+    closest_guess: 'Closest Guess',
 };
 
 export default function GlobalRecordsPanel({

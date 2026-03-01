@@ -7,16 +7,16 @@ import { formatDistance } from '@/lib/format';
 type GameReport = {
     game_id: string;
     lead_changes: number;
-    comeback: boolean;
-    rounds: {
+    comebacks: number;
+    momentum: {
         round_number: number;
-        round_winner: string | null;
-        score_gap: number;
-        cumulative_p1: number;
-        cumulative_p2: number;
+        leader: string | null;
+        player_one_cumulative: number;
+        player_two_cumulative: number;
+        difference: number;
     }[];
-    closest_round: { round_number: number; score_gap: number } | null;
-    biggest_blowout: { round_number: number; score_gap: number } | null;
+    closest_round: { round_number: number; margin: number } | null;
+    biggest_blowout: { round_number: number; margin: number } | null;
 };
 
 type DetailTab = 'rounds' | 'report';
@@ -130,29 +130,31 @@ export default function GameDetailModal({
                             ) : (
                                 <div className="space-y-3">
                                     {/* Momentum bar */}
-                                    <div>
-                                        <div className="mb-1 text-[10px] font-semibold uppercase text-white/30">Momentum</div>
-                                        <div className="flex h-6 items-end gap-[2px]">
-                                            {report.rounds.map((r) => {
-                                                const diff = isP1
-                                                    ? r.cumulative_p1 - r.cumulative_p2
-                                                    : r.cumulative_p2 - r.cumulative_p1;
-                                                const maxDiff = Math.max(
-                                                    ...report.rounds.map((rr) => Math.abs(rr.cumulative_p1 - rr.cumulative_p2)),
-                                                    1,
-                                                );
-                                                const pct = Math.abs(diff) / maxDiff;
-                                                return (
-                                                    <div
-                                                        key={r.round_number}
-                                                        className={`flex-1 rounded-sm ${diff >= 0 ? 'bg-green-400/50' : 'bg-red-400/50'}`}
-                                                        style={{ height: `${Math.max(pct * 100, 8)}%` }}
-                                                        title={`R${r.round_number}: ${diff > 0 ? '+' : ''}${diff}`}
-                                                    />
-                                                );
-                                            })}
+                                    {(report.momentum?.length ?? 0) > 0 && (
+                                        <div>
+                                            <div className="mb-1 text-[10px] font-semibold uppercase text-white/30">Momentum</div>
+                                            <div className="flex h-6 items-end gap-[2px]">
+                                                {report.momentum.map((r) => {
+                                                    const diff = isP1
+                                                        ? r.player_one_cumulative - r.player_two_cumulative
+                                                        : r.player_two_cumulative - r.player_one_cumulative;
+                                                    const maxDiff = Math.max(
+                                                        ...report.momentum.map((rr) => Math.abs(rr.difference)),
+                                                        1,
+                                                    );
+                                                    const pct = Math.abs(diff) / maxDiff;
+                                                    return (
+                                                        <div
+                                                            key={r.round_number}
+                                                            className={`flex-1 rounded-sm ${diff >= 0 ? 'bg-green-400/50' : 'bg-red-400/50'}`}
+                                                            style={{ height: `${Math.max(pct * 100, 8)}%` }}
+                                                            title={`R${r.round_number}: ${diff > 0 ? '+' : ''}${diff}`}
+                                                        />
+                                                    );
+                                                })}
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
 
                                     {/* Stats */}
                                     <div className="grid grid-cols-2 gap-2 text-[10px]">
@@ -160,9 +162,9 @@ export default function GameDetailModal({
                                             <div className="text-white/70">{report.lead_changes}</div>
                                             <div className="text-white/30">Lead Changes</div>
                                         </div>
-                                        <div className={`rounded p-2 text-center ${report.comeback ? 'bg-amber-400/10' : 'bg-white/5'}`}>
-                                            <div className={report.comeback ? 'text-amber-400' : 'text-white/70'}>
-                                                {report.comeback ? 'Yes' : 'No'}
+                                        <div className={`rounded p-2 text-center ${report.comebacks > 0 ? 'bg-amber-400/10' : 'bg-white/5'}`}>
+                                            <div className={report.comebacks > 0 ? 'text-amber-400' : 'text-white/70'}>
+                                                {report.comebacks > 0 ? 'Yes' : 'No'}
                                             </div>
                                             <div className="text-white/30">Comeback</div>
                                         </div>
@@ -170,12 +172,12 @@ export default function GameDetailModal({
 
                                     {report.closest_round && (
                                         <div className="text-[10px] text-white/40">
-                                            Closest round: R{report.closest_round.round_number} ({report.closest_round.score_gap} pts gap)
+                                            Closest round: R{report.closest_round.round_number} ({report.closest_round.margin} pts gap)
                                         </div>
                                     )}
                                     {report.biggest_blowout && (
                                         <div className="text-[10px] text-white/40">
-                                            Biggest blowout: R{report.biggest_blowout.round_number} ({report.biggest_blowout.score_gap.toLocaleString()} pts gap)
+                                            Biggest blowout: R{report.biggest_blowout.round_number} ({report.biggest_blowout.margin.toLocaleString()} pts gap)
                                         </div>
                                     )}
                                 </div>

@@ -3,10 +3,11 @@ import { useApiClient } from '@/hooks/useApiClient';
 
 type MapDifficulty = {
     map_id: string;
-    map_name: string;
+    name: string;
     difficulty: string;
     average_score: number;
     total_rounds: number;
+    total_games: number;
     perfect_round_rate: number;
 };
 
@@ -25,9 +26,9 @@ export default function MapDifficultyPanel({ playerId }: { playerId: string }) {
     useEffect(() => {
         void api.fetchMapDifficulty().then((res) => {
             const data = res.data as { maps: MapDifficulty[] };
-            setMaps(data.maps);
+            setMaps(data.maps ?? []);
             setLoading(false);
-        });
+        }).catch(() => setLoading(false));
     }, []);
 
     if (loading) return <div className="text-xs text-white/30">Loading map data...</div>;
@@ -42,7 +43,7 @@ export default function MapDifficultyPanel({ playerId }: { playerId: string }) {
                     {maps.map((m) => (
                         <div key={m.map_id} className="flex items-center justify-between rounded bg-white/5 px-2 py-1.5 text-[10px]">
                             <div className="flex items-center gap-2">
-                                <span className="text-white/70">{m.map_name}</span>
+                                <span className="text-white/70">{m.name}</span>
                                 <span className={`rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase ${DIFFICULTY_COLORS[m.difficulty] ?? 'text-white/40'}`}>
                                     {m.difficulty}
                                 </span>

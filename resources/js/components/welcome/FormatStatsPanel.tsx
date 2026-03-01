@@ -3,9 +3,10 @@ import { useApiClient } from '@/hooks/useApiClient';
 
 type FormatStat = {
     format: string;
-    games: number;
+    games_played: number;
     wins: number;
     losses: number;
+    draws: number;
     win_rate: number;
 };
 
@@ -23,10 +24,10 @@ export default function FormatStatsPanel({ playerId }: { playerId: string }) {
 
     useEffect(() => {
         void api.fetchPlayerFormatStats(playerId).then((res) => {
-            const data = res.data as { formats: FormatStat[] };
-            setStats(data.formats);
+            const data = res.data as { format_stats: FormatStat[] };
+            setStats(data.format_stats ?? []);
             setLoading(false);
-        });
+        }).catch(() => setLoading(false));
     }, []);
 
     if (loading) return <div className="text-xs text-white/30">Loading format stats...</div>;
@@ -51,8 +52,8 @@ export default function FormatStatsPanel({ playerId }: { playerId: string }) {
                                 />
                             </div>
                             <div className="flex justify-between text-[9px] text-white/30">
-                                <span>{s.wins}W / {s.losses}L</span>
-                                <span>{s.games} games</span>
+                                <span>{s.wins}W / {s.losses}L{s.draws > 0 ? ` / ${s.draws}D` : ''}</span>
+                                <span>{s.games_played} games</span>
                             </div>
                         </div>
                     ))}
