@@ -15,6 +15,7 @@ use App\Http\Controllers\JoinQueue;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\LiveGamesController;
 use App\Http\Controllers\MapController;
+use App\Http\Controllers\MapLeaderboardController;
 use App\Http\Controllers\PlayerAchievementsController;
 use App\Http\Controllers\PlayerActivityController;
 use App\Http\Controllers\PlayerLeavesQueue;
@@ -110,6 +111,7 @@ Route::get('players/{player}/head-to-head/{opponent}', HeadToHeadController::cla
 
 // ─── Global ───
 Route::get('maps', MapController::class)->name('maps.index');
+Route::get('maps/{map}/leaderboard', MapLeaderboardController::class)->name('maps.leaderboard');
 Route::get('leaderboard', LeaderboardController::class)->name('leaderboard');
 Route::get('stats', StatsController::class)->name('stats');
 Route::get('games/live', LiveGamesController::class)->name('games.live');
