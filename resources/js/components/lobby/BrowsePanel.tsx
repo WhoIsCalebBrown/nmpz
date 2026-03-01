@@ -103,6 +103,21 @@ function Divider({ label }: { label: string }) {
     );
 }
 
+/** Animate height 0↔auto using CSS grid-rows trick */
+function AnimateHeight({ open, children }: { open: boolean; children: React.ReactNode }) {
+    return (
+        <div
+            className="grid transition-[grid-template-rows,opacity] duration-300 ease-[cubic-bezier(.4,0,.2,1)]"
+            style={{
+                gridTemplateRows: open ? '1fr' : '0fr',
+                opacity: open ? 1 : 0,
+            }}
+        >
+            <div className="overflow-hidden">{children}</div>
+        </div>
+    );
+}
+
 function TabRow<T extends string>({
     tabs,
     active,
@@ -164,7 +179,8 @@ export default function BrowsePanel({
     const [mountedPanels, setMountedPanels] = useState<Set<string>>(new Set());
     const [visibleKey, setVisibleKey] = useState<string | null>(null);
     const panelWrapperRef = useRef<HTMLDivElement>(null);
-    const fadeRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+    const animRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+    const animating = useRef(false);
 
     function activePanelKey(): string | null {
         if (activeGroup === 'profile') {
@@ -190,35 +206,102 @@ export default function BrowsePanel({
         }
     }, [targetKey]);
 
+    /*
+     * Animated panel transition: collapse → swap → expand
+     *
+     * 1. Lock current height, fade out + shrink
+     * 2. Swap visible panel at the midpoint
+     * 3. Measure new content, expand + fade in
+     * 4. Clear inline height so it reflows naturally
+     */
     useEffect(() => {
         if (targetKey === visibleKey) return;
-        clearTimeout(fadeRef.current);
+        clearTimeout(animRef.current);
+        const el = panelWrapperRef.current;
 
-        const wrapper = panelWrapperRef.current;
-
-        if (!visibleKey || !wrapper) {
+        // --- First mount: no previous content, just enter ---
+        if (!visibleKey || !el) {
             setVisibleKey(targetKey);
-            if (wrapper) {
-                wrapper.style.opacity = '0';
+            if (el) {
+                el.style.opacity = '0';
+                el.style.transform = 'scale(0.98) translateY(4px)';
+                el.style.height = '0px';
+                el.style.overflow = 'hidden';
                 requestAnimationFrame(() => {
-                    wrapper.style.transition = 'opacity 250ms ease';
-                    wrapper.style.opacity = '1';
+                    // Measure the incoming panel
+                    const inner = el.querySelector<HTMLElement>(`[data-panel="${targetKey}"]`);
+                    const h = inner?.scrollHeight ?? 0;
+                    el.style.transition = 'opacity 300ms cubic-bezier(.4,0,.2,1), transform 300ms cubic-bezier(.4,0,.2,1), height 300ms cubic-bezier(.4,0,.2,1)';
+                    el.style.opacity = '1';
+                    el.style.transform = 'scale(1) translateY(0)';
+                    el.style.height = `${h}px`;
                 });
+                animRef.current = setTimeout(() => {
+                    if (el) { el.style.height = ''; el.style.overflow = ''; el.style.transition = ''; el.style.transform = ''; }
+                }, 320);
             }
             return;
         }
 
-        wrapper.style.transition = 'opacity 200ms ease';
-        wrapper.style.opacity = '0';
+        if (animating.current) return;
+        animating.current = true;
 
-        fadeRef.current = setTimeout(() => {
+        const EASE = 'cubic-bezier(.4,0,.2,1)';
+        const COLLAPSE = 200;
+        const EXPAND = 280;
+
+        // Phase 1 — collapse: lock height, fade out + shrink
+        const currentH = el.scrollHeight;
+        el.style.height = `${currentH}px`;
+        el.style.overflow = 'hidden';
+        // force reflow so the locked height registers before transition
+        void el.offsetHeight;
+        el.style.transition = `opacity ${COLLAPSE}ms ${EASE}, transform ${COLLAPSE}ms ${EASE}, height ${COLLAPSE}ms ${EASE}`;
+        el.style.opacity = '0';
+        el.style.transform = 'scale(0.97) translateY(6px)';
+        el.style.height = '0px';
+
+        // Phase 2 — swap content at collapse midpoint
+        animRef.current = setTimeout(() => {
+            // Briefly show incoming panel to measure its natural height
+            const incoming = el.querySelector<HTMLElement>(`[data-panel="${targetKey}"]`);
+            if (incoming) {
+                incoming.style.display = 'block';
+                incoming.style.visibility = 'hidden';
+                incoming.style.position = 'absolute';
+            }
+            const newH = incoming?.scrollHeight ?? 0;
+            if (incoming) {
+                incoming.style.display = '';
+                incoming.style.visibility = '';
+                incoming.style.position = '';
+            }
+
             setVisibleKey(targetKey);
-            requestAnimationFrame(() => {
-                wrapper.style.opacity = '1';
-            });
-        }, 200);
 
-        return () => clearTimeout(fadeRef.current);
+            // Phase 3 — expand: breathe out to measured height
+            requestAnimationFrame(() => {
+
+                el.style.transition = `opacity ${EXPAND}ms ${EASE}, transform ${EXPAND}ms ${EASE}, height ${EXPAND}ms ${EASE}`;
+                el.style.opacity = '1';
+                el.style.transform = 'scale(1) translateY(0)';
+                el.style.height = `${newH}px`;
+
+                // Phase 4 — clean up: remove inline styles so the panel reflows naturally
+                animRef.current = setTimeout(() => {
+                    el.style.height = '';
+                    el.style.overflow = '';
+                    el.style.transition = '';
+                    el.style.transform = '';
+                    animating.current = false;
+                }, EXPAND + 20);
+            });
+        }, COLLAPSE);
+
+        return () => {
+            clearTimeout(animRef.current);
+            animating.current = false;
+        };
     }, [targetKey]);
 
     const panelComponents: Record<string, React.ReactNode> = {
@@ -304,36 +387,37 @@ export default function BrowsePanel({
                     ))}
                 </div>
 
-                {/* Primary tab row */}
-                {activeGroup === 'profile' && (
+                {/* Primary tab row — slides in/out with the group */}
+                <AnimateHeight open={activeGroup === 'profile'}>
                     <div className="mt-2">
                         <TabRow tabs={PROFILE_PRIMARY} active={profilePrimary} onSelect={setProfilePrimary} />
                     </div>
-                )}
-                {activeGroup === 'community' && (
+                </AnimateHeight>
+                <AnimateHeight open={activeGroup === 'community'}>
                     <div className="mt-2">
                         <TabRow tabs={COMMUNITY_PRIMARY} active={communityPrimary} onSelect={setCommunityPrimary} />
                     </div>
-                )}
+                </AnimateHeight>
 
-                {/* Sub-tab row (only when a primary tab has children) */}
-                {activeGroup !== 'none' && renderSubTabs() && (
+                {/* Sub-tab row — appears only for categories with children */}
+                <AnimateHeight open={activeGroup !== 'none' && renderSubTabs() !== null}>
                     <div className="mt-1">{renderSubTabs()}</div>
-                )}
+                </AnimateHeight>
 
                 {/* Panel content */}
-                {activeGroup !== 'none' && (
-                    <div ref={panelWrapperRef} className="mt-3">
+                <AnimateHeight open={activeGroup !== 'none'}>
+                    <div ref={panelWrapperRef} className="mt-3 will-change-[height,opacity,transform]">
                         {Array.from(mountedPanels).map((key) => (
                             <div
                                 key={key}
+                                data-panel={key}
                                 style={{ display: key === visibleKey ? 'block' : 'none' }}
                             >
                                 {panelComponents[key]}
                             </div>
                         ))}
                     </div>
-                )}
+                </AnimateHeight>
             </div>
         </>
     );
