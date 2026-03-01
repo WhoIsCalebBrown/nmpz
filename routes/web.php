@@ -42,6 +42,7 @@ use App\Http\Controllers\PlayerStreaksController;
 use App\Http\Controllers\PlayerMakesGuess;
 use App\Http\Controllers\PlayerProfileController;
 use App\Http\Controllers\PlayerStatsController;
+use App\Http\Controllers\PlayerWinTrendsController;
 use App\Http\Controllers\RememberGameSession;
 use App\Http\Controllers\ReplayController;
 use App\Http\Controllers\RequestRematch;
@@ -134,6 +135,7 @@ Route::get('players/{player}/records', PlayerRecordsController::class)->name('pl
 Route::get('players/{player}/rivals', PlayerRivalsController::class)->name('players.rivals');
 Route::get('players/{player}/favorite-maps', PlayerFavoriteMapsController::class)->name('players.favorite-maps');
 Route::get('players/{player}/format-stats', PlayerFormatStatsController::class)->name('players.format-stats');
+Route::get('players/{player}/win-trends', PlayerWinTrendsController::class)->name('players.win-trends');
 Route::get('players/search', PlayerSearchController::class)->name('players.search');
 Route::get('players/{player}/head-to-head/{opponent}', HeadToHeadController::class)->name('players.head-to-head');
 Route::get('players/{player}/compare/{opponent}', PlayerComparisonController::class)->name('players.compare');
