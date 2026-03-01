@@ -15,6 +15,7 @@ use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\LiveGamesController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\PlayerAchievementsController;
+use App\Http\Controllers\PlayerActivityController;
 use App\Http\Controllers\PlayerLeavesQueue;
 use App\Http\Controllers\PlayerSearchController;
 use App\Http\Controllers\PlayerMakesGuess;
@@ -43,6 +44,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::post('players/{player}/leave-queue', PlayerLeavesQueue::class)->name('players.leave-queue');
 Route::post('players/{player}/join-queue', JoinQueue::class)->name('players.join-queue');
 Route::patch('players/{player}', UpdatePlayer::class)->name('players.update');
+Route::post('players/{player}/heartbeat', [PlayerActivityController::class, 'heartbeat'])->name('players.heartbeat');
+Route::post('players/activity', [PlayerActivityController::class, 'status'])->name('players.activity');
 
 // ─── Multiplayer game ───
 Route::middleware('game.player')->group(function () {

@@ -30,6 +30,11 @@ class CacheKeys
         return "opponent_guess_throttle:{$roundId}:{$playerId}";
     }
 
+    public static function playerOnline(string $playerId): string
+    {
+        return "player_online:{$playerId}";
+    }
+
     public static function soloLeaderboard(string $mode, ?string $mapId): string
     {
         return "solo_leaderboard_{$mode}_" . ($mapId ?? 'all');
