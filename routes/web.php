@@ -45,6 +45,7 @@ use App\Http\Controllers\SendSpectatorChat;
 use App\Http\Controllers\SoloGameController;
 use App\Http\Controllers\SpectateGame;
 use App\Http\Controllers\StatsController;
+use App\Http\Controllers\TopPlayersByMapController;
 use App\Http\Controllers\UpdatePlayer;
 use Illuminate\Support\Facades\Route;
 
@@ -130,6 +131,7 @@ Route::get('players/{player}/compare/{opponent}', PlayerComparisonController::cl
 Route::get('maps', MapController::class)->name('maps.index');
 Route::get('maps/{map}/leaderboard', MapLeaderboardController::class)->name('maps.leaderboard');
 Route::get('maps/{map}/stats', MapStatsController::class)->name('maps.stats');
+Route::get('maps/top-players', TopPlayersByMapController::class)->name('maps.top-players');
 Route::get('leaderboard', LeaderboardController::class)->name('leaderboard');
 Route::get('stats', StatsController::class)->name('stats');
 Route::get('stats/dashboard', GlobalStatsController::class)->name('stats.dashboard');
