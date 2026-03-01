@@ -13,10 +13,56 @@ class GameHistoryController extends Controller
 {
     public function index(Request $request, Player $player): JsonResponse
     {
-        $games = Game::query()
+        $query = Game::query()
             ->where('status', GameStatus::Completed)
             ->where(fn ($q) => $q->where('player_one_id', $player->getKey())
-                ->orWhere('player_two_id', $player->getKey()))
+                ->orWhere('player_two_id', $player->getKey()));
+
+        // Filter by opponent
+        if ($request->filled('opponent')) {
+            $opponentId = $request->input('opponent');
+            $query->where(function ($q) use ($opponentId) {
+                $q->where('player_one_id', $opponentId)
+                    ->orWhere('player_two_id', $opponentId);
+            });
+        }
+
+        // Filter by map
+        if ($request->filled('map')) {
+            $query->where('map_id', $request->input('map'));
+        }
+
+        // Filter by match format
+        if ($request->filled('format')) {
+            $format = $request->input('format');
+            if ($format === 'classic') {
+                $query->where(fn ($q) => $q->where('match_format', 'classic')->orWhereNull('match_format'));
+            } else {
+                $query->where('match_format', $format);
+            }
+        }
+
+        // Filter by result (win/loss/draw)
+        if ($request->filled('result')) {
+            $playerId = $player->getKey();
+            $result = $request->input('result');
+            match ($result) {
+                'win' => $query->where('winner_id', $playerId),
+                'loss' => $query->where('winner_id', '!=', $playerId)->whereNotNull('winner_id'),
+                'draw' => $query->whereNull('winner_id'),
+                default => null,
+            };
+        }
+
+        // Filter by date range
+        if ($request->filled('from')) {
+            $query->where('created_at', '>=', $request->input('from'));
+        }
+        if ($request->filled('to')) {
+            $query->where('created_at', '<=', $request->input('to'));
+        }
+
+        $games = $query
             ->with(['playerOne.user', 'playerTwo.user', 'map', 'rounds'])
             ->orderByDesc('updated_at')
             ->paginate(20);
