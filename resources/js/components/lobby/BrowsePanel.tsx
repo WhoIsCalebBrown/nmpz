@@ -207,38 +207,34 @@ export default function BrowsePanel({
     }, [targetKey]);
 
     /*
-     * Animated panel transition: collapse → swap → expand
+     * Animated panel transition: crossfade + height morph
      *
-     * 1. Lock current height, fade out + shrink
-     * 2. Swap visible panel at the midpoint
-     * 3. Measure new content, expand + fade in
-     * 4. Clear inline height so it reflows naturally
+     * Height glides directly from old → new (no collapse).
+     * Content fades out, swaps, fades in.
      */
     useEffect(() => {
         if (targetKey === visibleKey) return;
         clearTimeout(animRef.current);
         const el = panelWrapperRef.current;
 
+        const EASE = 'cubic-bezier(.4,0,.2,1)';
+        const FADE_OUT = 150;
+        const MORPH = 300;
+
         // --- First mount: no previous content, just enter ---
         if (!visibleKey || !el) {
             setVisibleKey(targetKey);
             if (el) {
                 el.style.opacity = '0';
-                el.style.transform = 'scale(0.98) translateY(4px)';
-                el.style.height = '0px';
-                el.style.overflow = 'hidden';
+                el.style.transform = 'translateY(4px)';
                 requestAnimationFrame(() => {
-                    // Measure the incoming panel
-                    const inner = el.querySelector<HTMLElement>(`[data-panel="${targetKey}"]`);
-                    const h = inner?.scrollHeight ?? 0;
-                    el.style.transition = 'opacity 300ms cubic-bezier(.4,0,.2,1), transform 300ms cubic-bezier(.4,0,.2,1), height 300ms cubic-bezier(.4,0,.2,1)';
+                    el.style.transition = `opacity ${MORPH}ms ${EASE}, transform ${MORPH}ms ${EASE}`;
                     el.style.opacity = '1';
-                    el.style.transform = 'scale(1) translateY(0)';
-                    el.style.height = `${h}px`;
+                    el.style.transform = 'translateY(0)';
                 });
                 animRef.current = setTimeout(() => {
-                    if (el) { el.style.height = ''; el.style.overflow = ''; el.style.transition = ''; el.style.transform = ''; }
-                }, 320);
+                    if (el) { el.style.transition = ''; el.style.transform = ''; }
+                }, MORPH + 20);
             }
             return;
         }
@@ -246,57 +242,51 @@ export default function BrowsePanel({
         if (animating.current) return;
         animating.current = true;
 
-        const EASE = 'cubic-bezier(.4,0,.2,1)';
-        const COLLAPSE = 200;
-        const EXPAND = 280;
-
-        // Phase 1 — collapse: lock height, fade out + shrink
+        // Measure current height and lock it
         const currentH = el.scrollHeight;
         el.style.height = `${currentH}px`;
         el.style.overflow = 'hidden';
-        // force reflow so the locked height registers before transition
+
+        // Measure incoming panel's natural height (show it invisibly)
+        const incoming = el.querySelector<HTMLElement>(`[data-panel="${targetKey}"]`);
+        if (incoming) {
+            incoming.style.display = 'block';
+            incoming.style.visibility = 'hidden';
+            incoming.style.position = 'absolute';
+            incoming.style.width = '100%';
+        }
+        const newH = incoming?.scrollHeight ?? currentH;
+        if (incoming) {
+            incoming.style.display = '';
+            incoming.style.visibility = '';
+            incoming.style.position = '';
+            incoming.style.width = '';
+        }
+
+        // Phase 1 — fade out current content
         void el.offsetHeight;
-        el.style.transition = `opacity ${COLLAPSE}ms ${EASE}, transform ${COLLAPSE}ms ${EASE}, height ${COLLAPSE}ms ${EASE}`;
+        el.style.transition = `opacity ${FADE_OUT}ms ${EASE}`;
         el.style.opacity = '0';
-        el.style.transform = 'scale(0.97) translateY(6px)';
-        el.style.height = '0px';
 
-        // Phase 2 — swap content at collapse midpoint
+        // Phase 2 — swap content + morph height + fade in
         animRef.current = setTimeout(() => {
-            // Briefly show incoming panel to measure its natural height
-            const incoming = el.querySelector<HTMLElement>(`[data-panel="${targetKey}"]`);
-            if (incoming) {
-                incoming.style.display = 'block';
-                incoming.style.visibility = 'hidden';
-                incoming.style.position = 'absolute';
-            }
-            const newH = incoming?.scrollHeight ?? 0;
-            if (incoming) {
-                incoming.style.display = '';
-                incoming.style.visibility = '';
-                incoming.style.position = '';
-            }
-
             setVisibleKey(targetKey);
 
-            // Phase 3 — expand: breathe out to measured height
             requestAnimationFrame(() => {
-
-                el.style.transition = `opacity ${EXPAND}ms ${EASE}, transform ${EXPAND}ms ${EASE}, height ${EXPAND}ms ${EASE}`;
+                // Start morphing height from current → new, fade in
+                el.style.transition = `opacity ${MORPH}ms ${EASE}, height ${MORPH}ms ${EASE}`;
                 el.style.opacity = '1';
-                el.style.transform = 'scale(1) translateY(0)';
                 el.style.height = `${newH}px`;
 
-                // Phase 4 — clean up: remove inline styles so the panel reflows naturally
+                // Phase 3 — clean up after morph completes
                 animRef.current = setTimeout(() => {
                     el.style.height = '';
                     el.style.overflow = '';
                     el.style.transition = '';
-                    el.style.transform = '';
                     animating.current = false;
-                }, EXPAND + 20);
+                }, MORPH + 20);
             });
-        }, COLLAPSE);
+        }, FADE_OUT);
 
         return () => {
             clearTimeout(animRef.current);
