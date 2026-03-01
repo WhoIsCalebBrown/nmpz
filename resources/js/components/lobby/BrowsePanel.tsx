@@ -25,7 +25,7 @@ import { Eye, User, Users } from 'lucide-react';
  * Two-tier navigation: top-level groups → primary tabs → optional sub-tabs.
  *
  * Profile ─ overview | history | progress ▸ (achievements·milestones·streaks·season)
- *                                | play     ▸ (rivals·formats·maps·solo)
+ *                                | analysis ▸ (rivals·formats·maps·solo)
  *
  * Community ─ rankings ▸ (leaderboard·active·movers)
  *           | social   ▸ (friends·highlights)
@@ -37,9 +37,9 @@ import { Eye, User, Users } from 'lucide-react';
 type ActiveGroup = 'none' | 'profile' | 'community' | 'watch';
 
 // -- Profile -----------------------------------------------------------
-type ProfilePrimary = 'overview' | 'history' | 'progress' | 'play';
+type ProfilePrimary = 'overview' | 'history' | 'progress' | 'analysis';
 type ProgressSub = 'achievements' | 'milestones' | 'streaks' | 'season';
-type PlaySub = 'rivals' | 'formats' | 'maps' | 'solo';
+type AnalysisSub = 'rivals' | 'formats' | 'maps' | 'solo';
 
 // -- Community ---------------------------------------------------------
 type CommunityPrimary = 'rankings' | 'social' | 'explore';
@@ -51,7 +51,7 @@ const PROFILE_PRIMARY: { key: ProfilePrimary; label: string }[] = [
     { key: 'overview', label: 'overview' },
     { key: 'history', label: 'history' },
     { key: 'progress', label: 'progress' },
-    { key: 'play', label: 'play' },
+    { key: 'analysis', label: 'analysis' },
 ];
 const PROGRESS_SUBS: { key: ProgressSub; label: string }[] = [
     { key: 'achievements', label: 'achievements' },
@@ -59,7 +59,7 @@ const PROGRESS_SUBS: { key: ProgressSub; label: string }[] = [
     { key: 'streaks', label: 'streaks' },
     { key: 'season', label: 'season' },
 ];
-const PLAY_SUBS: { key: PlaySub; label: string }[] = [
+const ANALYSIS_SUBS: { key: AnalysisSub; label: string }[] = [
     { key: 'rivals', label: 'rivals' },
     { key: 'formats', label: 'formats' },
     { key: 'maps', label: 'maps' },
@@ -167,7 +167,7 @@ export default function BrowsePanel({
     // Profile state
     const [profilePrimary, setProfilePrimary] = useState<ProfilePrimary>('overview');
     const [progressSub, setProgressSub] = useState<ProgressSub>('achievements');
-    const [playSub, setPlaySub] = useState<PlaySub>('rivals');
+    const [analysisSub, setAnalysisSub] = useState<AnalysisSub>('rivals');
 
     // Community state
     const [communityPrimary, setCommunityPrimary] = useState<CommunityPrimary>('rankings');
@@ -187,7 +187,7 @@ export default function BrowsePanel({
             if (profilePrimary === 'overview') return 'p-overview';
             if (profilePrimary === 'history') return 'p-history';
             if (profilePrimary === 'progress') return `p-progress-${progressSub}`;
-            if (profilePrimary === 'play') return `p-play-${playSub}`;
+            if (profilePrimary === 'analysis') return `p-analysis-${analysisSub}`;
         }
         if (activeGroup === 'community') {
             if (communityPrimary === 'rankings') return `c-rankings-${rankingsSub}`;
@@ -302,10 +302,10 @@ export default function BrowsePanel({
         'p-progress-milestones': <PlayerMilestonesPanel playerId={playerId} />,
         'p-progress-streaks': <PlayerStreaksPanel playerId={playerId} />,
         'p-progress-season': <SeasonPanel playerId={playerId} />,
-        'p-play-rivals': <PlayerRivalsPanel playerId={playerId} onViewProfile={onViewProfile} />,
-        'p-play-formats': <FormatStatsPanel playerId={playerId} />,
-        'p-play-maps': <FavoriteMapsPanel playerId={playerId} />,
-        'p-play-solo': <SoloLeaderboardPanel playerId={playerId} />,
+        'p-analysis-rivals': <PlayerRivalsPanel playerId={playerId} onViewProfile={onViewProfile} />,
+        'p-analysis-formats': <FormatStatsPanel playerId={playerId} />,
+        'p-analysis-maps': <FavoriteMapsPanel playerId={playerId} />,
+        'p-analysis-solo': <SoloLeaderboardPanel playerId={playerId} />,
 
         // Community
         'c-rankings-leaderboard': <Leaderboard playerId={playerId} />,
@@ -332,8 +332,8 @@ export default function BrowsePanel({
         if (activeGroup === 'profile') {
             if (profilePrimary === 'progress')
                 return <TabRow tabs={PROGRESS_SUBS} active={progressSub} onSelect={setProgressSub} size="xs" />;
-            if (profilePrimary === 'play')
-                return <TabRow tabs={PLAY_SUBS} active={playSub} onSelect={setPlaySub} size="xs" />;
+            if (profilePrimary === 'analysis')
+                return <TabRow tabs={ANALYSIS_SUBS} active={analysisSub} onSelect={setAnalysisSub} size="xs" />;
         }
         if (activeGroup === 'community') {
             if (communityPrimary === 'rankings')
