@@ -37,6 +37,7 @@ use App\Http\Controllers\PlayerInsightsController;
 use App\Http\Controllers\PlayerLeavesQueue;
 use App\Http\Controllers\PlayerMilestonesController;
 use App\Http\Controllers\PlayerRankingController;
+use App\Http\Controllers\PlayerRankPerformanceController;
 use App\Http\Controllers\PlayerRecordsController;
 use App\Http\Controllers\PlayerRivalsController;
 use App\Http\Controllers\PlayerSearchController;
@@ -143,6 +144,7 @@ Route::get('players/{player}/format-stats', PlayerFormatStatsController::class)-
 Route::get('players/{player}/win-trends', PlayerWinTrendsController::class)->name('players.win-trends');
 Route::get('players/{player}/skill-profile', PlayerSkillProfileController::class)->name('players.skill-profile');
 Route::get('players/{player}/insights', PlayerInsightsController::class)->name('players.insights');
+Route::get('players/{player}/rank-performance', PlayerRankPerformanceController::class)->name('players.rank-performance');
 Route::get('players/search', PlayerSearchController::class)->name('players.search');
 Route::get('players/{player}/head-to-head/{opponent}', HeadToHeadController::class)->name('players.head-to-head');
 Route::get('players/{player}/compare/{opponent}', PlayerComparisonController::class)->name('players.compare');
