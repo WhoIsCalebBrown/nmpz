@@ -17,6 +17,13 @@ type PendingRequest = {
     elo_rating: number;
 };
 
+type SearchResult = {
+    player_id: string;
+    name: string;
+    elo_rating: number;
+    rank: string;
+};
+
 export default function FriendsPanel({
     playerId,
     onViewProfile,
@@ -32,6 +39,7 @@ export default function FriendsPanel({
     const [addId, setAddId] = useState('');
     const [addError, setAddError] = useState<string | null>(null);
     const [addSuccess, setAddSuccess] = useState<string | null>(null);
+    const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
     function loadFriends() {
         api.fetchFriends()
@@ -202,24 +210,57 @@ export default function FriendsPanel({
 
             {tab === 'add' && (
                 <div className="space-y-2">
-                    <div className="text-[10px] text-white/30">
-                        Enter a player ID to send a friend request
-                    </div>
                     <div className="flex gap-1">
                         <input
                             value={addId}
-                            onChange={(e) => setAddId(e.target.value)}
-                            placeholder="Player ID"
+                            onChange={(e) => {
+                                setAddId(e.target.value);
+                                setAddError(null);
+                                setAddSuccess(null);
+                                if (e.target.value.trim().length >= 2) {
+                                    api.searchPlayers(e.target.value.trim())
+                                        .then((res) => setSearchResults(res.data as SearchResult[]))
+                                        .catch(() => setSearchResults([]));
+                                } else {
+                                    setSearchResults([]);
+                                }
+                            }}
+                            placeholder="Search by name..."
                             className="flex-1 rounded bg-white/10 px-2 py-1 text-[10px] text-white placeholder:text-white/30"
                         />
-                        <button
-                            onClick={() => void sendRequest()}
-                            disabled={!addId.trim()}
-                            className="rounded bg-white/10 px-2 py-1 text-[10px] text-white hover:bg-white/20 disabled:opacity-30"
-                        >
-                            Send
-                        </button>
                     </div>
+                    {searchResults.length > 0 && (
+                        <div className="max-h-32 space-y-1 overflow-y-auto">
+                            {searchResults.map((r) => (
+                                <div
+                                    key={r.player_id}
+                                    className="flex items-center justify-between rounded bg-white/5 px-2 py-1 text-[10px]"
+                                >
+                                    <button
+                                        type="button"
+                                        onClick={() => onViewProfile?.(r.player_id)}
+                                        className="flex items-center gap-2 text-left"
+                                    >
+                                        <span className="text-white/80">{r.name}</span>
+                                        <span className="text-white/25">{r.rank} {r.elo_rating}</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setAddId(r.player_id);
+                                            void sendRequest();
+                                        }}
+                                        className="rounded bg-blue-500/20 px-1.5 py-0.5 text-blue-400 transition hover:bg-blue-500/30"
+                                    >
+                                        Add
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    {addId.trim().length >= 2 && searchResults.length === 0 && (
+                        <div className="text-center text-[10px] text-white/30">No players found</div>
+                    )}
                     {addError && <div className="text-[10px] text-red-400">{addError}</div>}
                     {addSuccess && <div className="text-[10px] text-green-400">{addSuccess}</div>}
                 </div>
