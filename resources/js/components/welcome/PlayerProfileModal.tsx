@@ -48,7 +48,26 @@ type WinTrendsData = {
     form: string;
 };
 
-type ProfileTab = 'overview' | 'skills' | 'insights' | 'nemesis';
+type RankPerformanceData = {
+    ranks: { rank: string; games: number; wins: number; win_rate: number }[];
+};
+
+type TimePerformanceData = {
+    slots: { slot: string; games: number; wins: number; win_rate: number }[];
+};
+
+type GameLogEntry = {
+    game_id: string;
+    result: string;
+    opponent_name: string;
+    map_name: string;
+    my_score: number;
+    opponent_score: number;
+    played_at: string;
+    rounds: { round_number: number; score: number; distance_km: number }[];
+};
+
+type ProfileTab = 'overview' | 'skills' | 'insights' | 'nemesis' | 'performance';
 
 type PlayerProfileModalProps = {
     targetPlayerId: string | null;
@@ -60,6 +79,7 @@ type PlayerProfileModalProps = {
 const TABS: { key: ProfileTab; label: string }[] = [
     { key: 'overview', label: 'Overview' },
     { key: 'skills', label: 'Skills' },
+    { key: 'performance', label: 'Perf' },
     { key: 'insights', label: 'Insights' },
     { key: 'nemesis', label: 'Nemesis' },
 ];
@@ -89,6 +109,9 @@ export default function PlayerProfileModal({ targetPlayerId, playerId, open, onC
     const [insights, setInsights] = useState<InsightsData | null>(null);
     const [nemesis, setNemesis] = useState<NemesisData | null>(null);
     const [winTrends, setWinTrends] = useState<WinTrendsData | null>(null);
+    const [rankPerf, setRankPerf] = useState<RankPerformanceData | null>(null);
+    const [timePerf, setTimePerf] = useState<TimePerformanceData | null>(null);
+    const [gameLog, setGameLog] = useState<GameLogEntry[] | null>(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -99,6 +122,9 @@ export default function PlayerProfileModal({ targetPlayerId, playerId, open, onC
         setInsights(null);
         setNemesis(null);
         setWinTrends(null);
+        setRankPerf(null);
+        setTimePerf(null);
+        setGameLog(null);
         setTab('overview');
         api.fetchPlayerProfile(targetPlayerId)
             .then((res) => setProfile(res.data as ProfileData))
@@ -124,6 +150,20 @@ export default function PlayerProfileModal({ targetPlayerId, playerId, open, onC
         if (tab === 'nemesis' && !nemesis) {
             api.fetchPlayerNemesis(targetPlayerId)
                 .then((res) => setNemesis(res.data as NemesisData))
+                .catch(() => {});
+        }
+        if (tab === 'performance' && !rankPerf) {
+            api.fetchPlayerRankPerformance(targetPlayerId)
+                .then((res) => setRankPerf(res.data as RankPerformanceData))
+                .catch(() => {});
+            api.fetchPlayerTimePerformance(targetPlayerId)
+                .then((res) => setTimePerf(res.data as TimePerformanceData))
+                .catch(() => {});
+            api.fetchPlayerGameLog(targetPlayerId)
+                .then((res) => {
+                    const data = res.data as { games: GameLogEntry[] };
+                    setGameLog(data.games);
+                })
                 .catch(() => {});
         }
     }, [tab, open, targetPlayerId]);
@@ -383,6 +423,74 @@ export default function PlayerProfileModal({ targetPlayerId, playerId, open, onC
                                                 </div>
                                             )}
                                         </>
+                                    )}
+                                </>
+                            )}
+
+                            {tab === 'performance' && (
+                                <>
+                                    {!rankPerf && !timePerf && !gameLog ? (
+                                        <div className="py-4 text-center text-xs text-white/30">Loading...</div>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            {rankPerf && rankPerf.ranks.length > 0 && (
+                                                <div>
+                                                    <div className="mb-1 text-[10px] font-semibold uppercase text-white/30">Win Rate by Opponent Rank</div>
+                                                    <div className="space-y-1">
+                                                        {rankPerf.ranks.map((r) => (
+                                                            <div key={r.rank} className="flex items-center gap-2 text-[10px]">
+                                                                <span className="w-14 text-white/50">{r.rank}</span>
+                                                                <div className="flex-1 h-1.5 rounded-full bg-white/10">
+                                                                    <div
+                                                                        className="h-full rounded-full bg-blue-400/50"
+                                                                        style={{ width: `${r.win_rate}%` }}
+                                                                    />
+                                                                </div>
+                                                                <span className="w-12 text-right text-white/40">
+                                                                    {r.win_rate}% ({r.games})
+                                                                </span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {timePerf && timePerf.slots.length > 0 && (
+                                                <div>
+                                                    <div className="mb-1 text-[10px] font-semibold uppercase text-white/30">Win Rate by Time of Day</div>
+                                                    <div className="grid grid-cols-2 gap-1">
+                                                        {timePerf.slots.map((s) => (
+                                                            <div key={s.slot} className="rounded bg-white/5 p-1.5 text-center text-[10px]">
+                                                                <div className="text-white/50">{s.slot}</div>
+                                                                <div className="text-white/70">{s.win_rate}%</div>
+                                                                <div className="text-white/25">{s.games}g</div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {gameLog && gameLog.length > 0 && (
+                                                <div>
+                                                    <div className="mb-1 text-[10px] font-semibold uppercase text-white/30">Recent Games</div>
+                                                    <div className="space-y-1">
+                                                        {gameLog.slice(0, 5).map((g) => (
+                                                            <div key={g.game_id} className="flex items-center justify-between text-[10px]">
+                                                                <div className="flex items-center gap-1">
+                                                                    <span className={`font-bold uppercase ${resultColor(g.result)}`}>
+                                                                        {g.result === 'win' ? 'W' : g.result === 'loss' ? 'L' : 'D'}
+                                                                    </span>
+                                                                    <span className="text-white/50">vs {g.opponent_name}</span>
+                                                                </div>
+                                                                <span className="text-white/40">
+                                                                    {g.my_score.toLocaleString()}-{g.opponent_score.toLocaleString()}
+                                                                </span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     )}
                                 </>
                             )}
