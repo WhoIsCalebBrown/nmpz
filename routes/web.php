@@ -7,6 +7,7 @@ use App\Http\Controllers\DeclineRematch;
 use App\Http\Controllers\FeaturedMatchController;
 use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GameHistoryController;
+use App\Http\Controllers\HeadToHeadController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JoinPrivateLobby;
 use App\Http\Controllers\JoinQueue;
@@ -99,6 +100,7 @@ Route::get('players/{player}/games', [GameHistoryController::class, 'index'])->n
 Route::get('players/{player}/achievements', PlayerAchievementsController::class)->name('players.achievements');
 Route::get('players/{player}/profile', PlayerProfileController::class)->name('players.profile');
 Route::get('players/search', PlayerSearchController::class)->name('players.search');
+Route::get('players/{player}/head-to-head/{opponent}', HeadToHeadController::class)->name('players.head-to-head');
 
 // ─── Global ───
 Route::get('maps', MapController::class)->name('maps.index');
