@@ -46,5 +46,6 @@ export function multiplayerApi(client: AxiosInstance, playerId: string, game: Ga
             client.post(`/players/${playerId}/private-lobby/join`, { code }),
         cancelPrivateLobby: (lobbyId: string) =>
             client.post(`/players/${playerId}/private-lobby/${lobbyId}/cancel`),
+        fetchQueueStatus: () => client.get('/queue/status'),
     };
 }
