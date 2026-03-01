@@ -371,35 +371,39 @@ export default function BrowsePanel({
                     ))}
                 </div>
 
-                {/* Primary tab row — slides in/out with the group */}
-                <AnimateHeight open={activeGroup === 'profile'}>
-                    <div className="mt-2">
-                        <TabRow tabs={PROFILE_PRIMARY} active={profilePrimary} onSelect={setProfilePrimary} />
-                    </div>
-                </AnimateHeight>
-                <AnimateHeight open={activeGroup === 'community'}>
-                    <div className="mt-2">
-                        <TabRow tabs={COMMUNITY_PRIMARY} active={communityPrimary} onSelect={setCommunityPrimary} />
-                    </div>
-                </AnimateHeight>
-
-                {/* Sub-tab row — appears only for categories with children */}
-                <AnimateHeight open={activeGroup !== 'none' && renderSubTabs() !== null}>
-                    <div className="mt-1">{renderSubTabs()}</div>
-                </AnimateHeight>
-
-                {/* Panel content */}
+                {/* Single AnimateHeight wraps tabs + sub-tabs + panel so
+                   everything reveals as one unit — no competing animations */}
                 <AnimateHeight open={activeGroup !== 'none'}>
-                    <div ref={panelWrapperRef} className="mt-3 will-change-[height,opacity,transform]">
-                        {Array.from(mountedPanels).map((key) => (
-                            <div
-                                key={key}
-                                data-panel={key}
-                                style={{ display: key === visibleKey ? 'block' : 'none' }}
-                            >
-                                {panelComponents[key]}
+                    <div>
+                        {/* Primary tab row */}
+                        {activeGroup === 'profile' && (
+                            <div className="mt-2">
+                                <TabRow tabs={PROFILE_PRIMARY} active={profilePrimary} onSelect={setProfilePrimary} />
                             </div>
-                        ))}
+                        )}
+                        {activeGroup === 'community' && (
+                            <div className="mt-2">
+                                <TabRow tabs={COMMUNITY_PRIMARY} active={communityPrimary} onSelect={setCommunityPrimary} />
+                            </div>
+                        )}
+
+                        {/* Sub-tab row */}
+                        {renderSubTabs() !== null && (
+                            <div className="mt-1">{renderSubTabs()}</div>
+                        )}
+
+                        {/* Panel content */}
+                        <div ref={panelWrapperRef} className="mt-3 will-change-[height,opacity,transform]">
+                            {Array.from(mountedPanels).map((key) => (
+                                <div
+                                    key={key}
+                                    data-panel={key}
+                                    style={{ display: key === visibleKey ? 'block' : 'none' }}
+                                >
+                                    {panelComponents[key]}
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </AnimateHeight>
             </div>
