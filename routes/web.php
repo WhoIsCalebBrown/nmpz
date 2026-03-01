@@ -19,6 +19,7 @@ use App\Http\Controllers\MapController;
 use App\Http\Controllers\MapLeaderboardController;
 use App\Http\Controllers\PlayerAchievementsController;
 use App\Http\Controllers\PlayerActivityController;
+use App\Http\Controllers\PlayerActivityFeedController;
 use App\Http\Controllers\PlayerLeavesQueue;
 use App\Http\Controllers\PlayerMilestonesController;
 use App\Http\Controllers\PlayerSearchController;
@@ -107,6 +108,7 @@ Route::get('players/{player}/games', [GameHistoryController::class, 'index'])->n
 Route::get('players/{player}/achievements', PlayerAchievementsController::class)->name('players.achievements');
 Route::get('players/{player}/profile', PlayerProfileController::class)->name('players.profile');
 Route::get('players/{player}/milestones', PlayerMilestonesController::class)->name('players.milestones');
+Route::get('players/{player}/activity-feed', PlayerActivityFeedController::class)->name('players.activity-feed');
 Route::get('players/search', PlayerSearchController::class)->name('players.search');
 Route::get('players/{player}/head-to-head/{opponent}', HeadToHeadController::class)->name('players.head-to-head');
 
