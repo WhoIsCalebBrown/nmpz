@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import AchievementsPanel from '@/components/welcome/AchievementsPanel';
 import ActivePlayersPanel from '@/components/welcome/ActivePlayersPanel';
 import CommunityHighlightsPanel from '@/components/welcome/CommunityHighlightsPanel';
+import FavoriteMapsPanel from '@/components/welcome/FavoriteMapsPanel';
 import FriendsPanel from '@/components/welcome/FriendsPanel';
 import GameHistoryPanel from '@/components/welcome/GameHistoryPanel';
 import GlobalRecordsPanel from '@/components/welcome/GlobalRecordsPanel';
@@ -12,6 +13,8 @@ import LiveGamesList from '@/components/welcome/LiveGamesList';
 import MapDifficultyPanel from '@/components/welcome/MapDifficultyPanel';
 import MatchmakingStatsPanel from '@/components/welcome/MatchmakingStatsPanel';
 import FormatStatsPanel from '@/components/welcome/FormatStatsPanel';
+import PlayerMilestonesPanel from '@/components/welcome/PlayerMilestonesPanel';
+import PlayerStreaksPanel from '@/components/welcome/PlayerStreaksPanel';
 import PlayerRivalsPanel from '@/components/welcome/PlayerRivalsPanel';
 import PlayerStatsPanel from '@/components/welcome/PlayerStatsPanel';
 import SeasonPanel from '@/components/welcome/SeasonPanel';
@@ -19,7 +22,7 @@ import SoloLeaderboardPanel from '@/components/welcome/SoloLeaderboardPanel';
 import { Eye, User, Users } from 'lucide-react';
 
 type ActiveGroup = 'none' | 'profile' | 'community' | 'watch';
-type ProfileTab = 'stats' | 'history' | 'achievements' | 'season' | 'solo' | 'rivals' | 'formats';
+type ProfileTab = 'stats' | 'history' | 'achievements' | 'season' | 'solo' | 'rivals' | 'formats' | 'milestones' | 'streaks' | 'maps';
 type CommunityTab = 'leaderboard' | 'friends' | 'highlights' | 'active' | 'records' | 'movers' | 'maps' | 'matchmaking' | 'global';
 
 function Divider({ label }: { label: string }) {
@@ -46,6 +49,9 @@ const PROFILE_TABS: { key: ProfileTab; label: string }[] = [
     { key: 'solo', label: 'solo' },
     { key: 'rivals', label: 'rivals' },
     { key: 'formats', label: 'formats' },
+    { key: 'milestones', label: 'milestones' },
+    { key: 'streaks', label: 'streaks' },
+    { key: 'maps', label: 'maps' },
 ];
 
 const COMMUNITY_TABS: { key: CommunityTab; label: string }[] = [
@@ -139,6 +145,9 @@ export default function BrowsePanel({
         'profile-solo': <SoloLeaderboardPanel playerId={playerId} />,
         'profile-rivals': <PlayerRivalsPanel playerId={playerId} onViewProfile={onViewProfile} />,
         'profile-formats': <FormatStatsPanel playerId={playerId} />,
+        'profile-milestones': <PlayerMilestonesPanel playerId={playerId} />,
+        'profile-streaks': <PlayerStreaksPanel playerId={playerId} />,
+        'profile-maps': <FavoriteMapsPanel playerId={playerId} />,
         'community-leaderboard': <Leaderboard playerId={playerId} />,
         'community-friends': (
             <FriendsPanel
