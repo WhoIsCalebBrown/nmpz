@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivePlayersController;
 use App\Http\Controllers\CancelPrivateLobby;
 use App\Http\Controllers\CommunityHighlightsController;
 use App\Http\Controllers\CreatePrivateLobby;
@@ -163,6 +164,7 @@ Route::get('maps/{map}/stats', MapStatsController::class)->name('maps.stats');
 Route::get('maps/top-players', TopPlayersByMapController::class)->name('maps.top-players');
 Route::get('maps/difficulty', MapDifficultyController::class)->name('maps.difficulty');
 Route::get('leaderboard', LeaderboardController::class)->name('leaderboard');
+Route::get('leaderboard/active', ActivePlayersController::class)->name('leaderboard.active');
 Route::get('leaderboard/movers', LeaderboardMoversController::class)->name('leaderboard.movers');
 Route::get('stats', StatsController::class)->name('stats');
 Route::get('community/highlights', CommunityHighlightsController::class)->name('community.highlights');
