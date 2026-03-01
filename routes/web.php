@@ -22,6 +22,7 @@ use App\Http\Controllers\PlayerAchievementsController;
 use App\Http\Controllers\PlayerActivityController;
 use App\Http\Controllers\PlayerActivityFeedController;
 use App\Http\Controllers\PlayerComparisonController;
+use App\Http\Controllers\PlayerEloHistoryController;
 use App\Http\Controllers\PlayerLeavesQueue;
 use App\Http\Controllers\PlayerMilestonesController;
 use App\Http\Controllers\PlayerSearchController;
@@ -113,6 +114,7 @@ Route::get('players/{player}/profile', PlayerProfileController::class)->name('pl
 Route::get('players/{player}/milestones', PlayerMilestonesController::class)->name('players.milestones');
 Route::get('players/{player}/activity-feed', PlayerActivityFeedController::class)->name('players.activity-feed');
 Route::get('players/{player}/streaks', PlayerStreaksController::class)->name('players.streaks');
+Route::get('players/{player}/elo-history', PlayerEloHistoryController::class)->name('players.elo-history');
 Route::get('players/search', PlayerSearchController::class)->name('players.search');
 Route::get('players/{player}/head-to-head/{opponent}', HeadToHeadController::class)->name('players.head-to-head');
 Route::get('players/{player}/compare/{opponent}', PlayerComparisonController::class)->name('players.compare');
