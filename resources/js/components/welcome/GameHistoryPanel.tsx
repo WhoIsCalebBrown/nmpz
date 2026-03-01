@@ -2,6 +2,26 @@ import { useEffect, useState } from 'react';
 import type { GameHistoryEntry } from '@/components/welcome/types';
 import { useApiClient } from '@/hooks/useApiClient';
 
+type Filters = {
+    result?: string;
+    format?: string;
+};
+
+const RESULT_OPTIONS = [
+    { value: '', label: 'All' },
+    { value: 'win', label: 'Wins' },
+    { value: 'loss', label: 'Losses' },
+    { value: 'draw', label: 'Draws' },
+];
+
+const FORMAT_OPTIONS = [
+    { value: '', label: 'All' },
+    { value: 'classic', label: 'Classic' },
+    { value: 'best_of_3', label: 'Bo3' },
+    { value: 'best_of_5', label: 'Bo5' },
+    { value: 'best_of_7', label: 'Bo7' },
+];
+
 export default function GameHistoryPanel({
     playerId,
     onViewDetail,
@@ -16,10 +36,15 @@ export default function GameHistoryPanel({
     const [page, setPage] = useState(1);
     const [lastPage, setLastPage] = useState(1);
     const [loading, setLoading] = useState(true);
+    const [filters, setFilters] = useState<Filters>({});
+    const [filtersOpen, setFiltersOpen] = useState(false);
 
     useEffect(() => {
         setLoading(true);
-        void api.fetchGameHistory(page).then((res) => {
+        const params: Record<string, string> = {};
+        if (filters.result) params.result = filters.result;
+        if (filters.format) params.format = filters.format;
+        void api.fetchGameHistory(page, params).then((res) => {
             const data = res.data as {
                 data: GameHistoryEntry[];
                 current_page: number;
@@ -29,18 +54,87 @@ export default function GameHistoryPanel({
             setLastPage(data.last_page);
             setLoading(false);
         });
-    }, [page]);
+    }, [page, filters]);
+
+    function updateFilter(key: keyof Filters, value: string) {
+        setFilters((prev) => ({ ...prev, [key]: value || undefined }));
+        setPage(1);
+    }
+
+    const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
     const resultColor = (r: string) =>
         r === 'win' ? 'text-green-400' : r === 'loss' ? 'text-red-400' : 'text-white/40';
 
     return (
         <div className="w-full max-w-md rounded border border-white/10 bg-black/60 p-3 backdrop-blur-sm">
-            <div className="mb-2 text-xs text-white/60">Game History</div>
+            <div className="mb-2 flex items-center justify-between">
+                <span className="text-xs text-white/60">Game History</span>
+                <button
+                    type="button"
+                    onClick={() => setFiltersOpen(!filtersOpen)}
+                    className={`text-[10px] transition ${
+                        activeFilterCount > 0 ? 'text-blue-400' : 'text-white/30 hover:text-white/50'
+                    }`}
+                >
+                    filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+                </button>
+            </div>
+
+            {filtersOpen && (
+                <div className="mb-2 flex flex-wrap gap-2 border-b border-white/10 pb-2">
+                    <div className="flex items-center gap-1">
+                        <span className="text-[10px] text-white/30">Result:</span>
+                        {RESULT_OPTIONS.map((opt) => (
+                            <button
+                                key={opt.value}
+                                type="button"
+                                onClick={() => updateFilter('result', opt.value)}
+                                className={`rounded px-1.5 py-0.5 text-[10px] transition ${
+                                    (filters.result ?? '') === opt.value
+                                        ? 'bg-white/15 text-white'
+                                        : 'text-white/30 hover:text-white/50'
+                                }`}
+                            >
+                                {opt.label}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <span className="text-[10px] text-white/30">Format:</span>
+                        {FORMAT_OPTIONS.map((opt) => (
+                            <button
+                                key={opt.value}
+                                type="button"
+                                onClick={() => updateFilter('format', opt.value)}
+                                className={`rounded px-1.5 py-0.5 text-[10px] transition ${
+                                    (filters.format ?? '') === opt.value
+                                        ? 'bg-white/15 text-white'
+                                        : 'text-white/30 hover:text-white/50'
+                                }`}
+                            >
+                                {opt.label}
+                            </button>
+                        ))}
+                    </div>
+                    {activeFilterCount > 0 && (
+                        <button
+                            type="button"
+                            onClick={() => { setFilters({}); setPage(1); }}
+                            className="text-[10px] text-red-400/60 hover:text-red-400"
+                        >
+                            clear
+                        </button>
+                    )}
+                </div>
+            )}
+
             {loading ? (
                 <div className="py-4 text-center text-xs text-white/30">Loading...</div>
             ) : entries.length === 0 ? (
-                <div className="py-4 text-center text-xs text-white/30">No games played yet</div>
+                <div className="py-4 text-center text-xs text-white/30">
+                    {activeFilterCount > 0 ? 'No games match filters' : 'No games played yet'}
+                </div>
             ) : (
                 <div className="max-h-64 space-y-1 overflow-y-auto">
                     {entries.map((e) => (
