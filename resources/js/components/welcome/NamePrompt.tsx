@@ -38,7 +38,7 @@ export default function NamePrompt({
                 onClick={submit}
                 className="mt-2 w-full rounded bg-white/10 px-2 py-1 text-xs text-white hover:bg-white/20"
             >
-                Join queue
+                Let's go
             </button>
         </div>
     );

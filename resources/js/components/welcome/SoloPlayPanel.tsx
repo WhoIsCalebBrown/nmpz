@@ -90,7 +90,7 @@ export default function SoloPlayPanel({ playerId }: { playerId: string }) {
 
             if (selectedMode === 'explorer') {
                 options.max_rounds = explorerRounds;
-                options.round_timeout = explorerTimer || 0;
+                options.round_timeout = explorerTimer || null;
             } else if (selectedMode === 'streak') {
                 options.difficulty = streakDifficulty;
             }

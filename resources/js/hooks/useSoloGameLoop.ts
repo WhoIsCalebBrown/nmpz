@@ -93,7 +93,7 @@ export function useSoloGameLoop<TRoundState extends RoundStateBase, TGuessResult
             setPendingNextRound(null);
             setPinCoords(null);
             setPhase('guessing');
-            setTimeLeft(pendingNextRound.round_timeout ?? null);
+            setTimeLeft(pendingNextRound.round_timeout || null);
         }
     }
 
@@ -102,7 +102,7 @@ export function useSoloGameLoop<TRoundState extends RoundStateBase, TGuessResult
         setRoundResult(null);
         setPinCoords(null);
         setPhase('guessing');
-        setTimeLeft(state.round_timeout ?? null);
+        setTimeLeft(state.round_timeout || null);
         setError(null);
         setIsDone(false);
     }

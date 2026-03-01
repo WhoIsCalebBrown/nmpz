@@ -26,7 +26,7 @@ export default function PlayerIdentity({
         return (
             <div className="px-4 py-3">
                 <div className="mb-2 text-center text-xs text-white/60">enter your name</div>
-                <NamePrompt onSubmit={(name) => onJoinQueue(name)} />
+                <NamePrompt onSubmit={(name) => onNameChange(name)} />
             </div>
         );
     }

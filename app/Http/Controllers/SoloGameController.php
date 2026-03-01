@@ -44,7 +44,7 @@ class SoloGameController extends Controller
         };
 
         $roundTimeout = match ($game->mode) {
-            'explorer' => $game->config['round_timeout'] ?? null,
+            'explorer' => ($game->config['round_timeout'] ?? null) ?: null,
             'streak' => config('game.solo.streak_timeout'),
             'time_attack' => config('game.solo.time_attack_timeout'),
             'perfect_score' => config('game.solo.perfect_score_timeout'),
