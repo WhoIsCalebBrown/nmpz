@@ -3,6 +3,7 @@
 use App\Http\Controllers\CancelPrivateLobby;
 use App\Http\Controllers\CreatePrivateLobby;
 use App\Http\Controllers\DailyChallengeController;
+use App\Http\Controllers\DailyChallengeHistoryController;
 use App\Http\Controllers\DeclineRematch;
 use App\Http\Controllers\FeaturedMatchController;
 use App\Http\Controllers\FriendshipController;
@@ -92,6 +93,7 @@ Route::prefix('players/{player}/daily-challenge')->group(function () {
 });
 Route::get('daily-challenge', [DailyChallengeController::class, 'today'])->name('daily-challenge.today');
 Route::get('daily-challenge/leaderboard', [DailyChallengeController::class, 'leaderboard'])->name('daily-challenge.leaderboard');
+Route::get('daily-challenge/history', DailyChallengeHistoryController::class)->name('daily-challenge.history');
 
 // ─── Friends ───
 Route::prefix('players/{player}/friends')->group(function () {

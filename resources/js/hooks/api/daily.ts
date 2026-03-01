@@ -10,5 +10,6 @@ export function dailyApi(client: AxiosInstance, playerId: string) {
         fetchDailyLeaderboard: () => client.get('/daily-challenge/leaderboard'),
         resetDailyChallenge: () => client.post(`/players/${playerId}/daily-challenge/reset`),
         fetchDailyChallengeStats: () => client.get(`/players/${playerId}/daily-challenge/stats`),
+        fetchDailyChallengeHistory: () => client.get('/daily-challenge/history'),
     };
 }
