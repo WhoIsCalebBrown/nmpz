@@ -14,6 +14,7 @@ use App\Http\Controllers\GameRoundsController;
 use App\Http\Controllers\GameSummaryController;
 use App\Http\Controllers\GlobalStatsController;
 use App\Http\Controllers\HeadToHeadController;
+use App\Http\Controllers\HeadToHeadMapsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JoinPrivateLobby;
 use App\Http\Controllers\JoinQueue;
@@ -147,6 +148,7 @@ Route::get('players/{player}/insights', PlayerInsightsController::class)->name('
 Route::get('players/{player}/rank-performance', PlayerRankPerformanceController::class)->name('players.rank-performance');
 Route::get('players/search', PlayerSearchController::class)->name('players.search');
 Route::get('players/{player}/head-to-head/{opponent}', HeadToHeadController::class)->name('players.head-to-head');
+Route::get('players/{player}/head-to-head/{opponent}/maps', HeadToHeadMapsController::class)->name('players.head-to-head.maps');
 Route::get('players/{player}/compare/{opponent}', PlayerComparisonController::class)->name('players.compare');
 
 // ─── Global ───
