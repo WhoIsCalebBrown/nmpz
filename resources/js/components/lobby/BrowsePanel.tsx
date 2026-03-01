@@ -10,13 +10,15 @@ import LeaderboardMoversPanel from '@/components/welcome/LeaderboardMoversPanel'
 import LiveGamesList from '@/components/welcome/LiveGamesList';
 import MapDifficultyPanel from '@/components/welcome/MapDifficultyPanel';
 import MatchmakingStatsPanel from '@/components/welcome/MatchmakingStatsPanel';
+import FormatStatsPanel from '@/components/welcome/FormatStatsPanel';
+import PlayerRivalsPanel from '@/components/welcome/PlayerRivalsPanel';
 import PlayerStatsPanel from '@/components/welcome/PlayerStatsPanel';
 import SeasonPanel from '@/components/welcome/SeasonPanel';
 import SoloLeaderboardPanel from '@/components/welcome/SoloLeaderboardPanel';
 import { Eye, User, Users } from 'lucide-react';
 
 type ActiveGroup = 'none' | 'profile' | 'community' | 'watch';
-type ProfileTab = 'stats' | 'history' | 'achievements' | 'season' | 'solo';
+type ProfileTab = 'stats' | 'history' | 'achievements' | 'season' | 'solo' | 'rivals' | 'formats';
 type CommunityTab = 'leaderboard' | 'friends' | 'highlights' | 'active' | 'records' | 'movers' | 'maps' | 'matchmaking';
 
 function Divider({ label }: { label: string }) {
@@ -41,6 +43,8 @@ const PROFILE_TABS: { key: ProfileTab; label: string }[] = [
     { key: 'achievements', label: 'achievements' },
     { key: 'season', label: 'season' },
     { key: 'solo', label: 'solo' },
+    { key: 'rivals', label: 'rivals' },
+    { key: 'formats', label: 'formats' },
 ];
 
 const COMMUNITY_TABS: { key: CommunityTab; label: string }[] = [
@@ -131,6 +135,8 @@ export default function BrowsePanel({
         'profile-achievements': <AchievementsPanel playerId={playerId} />,
         'profile-season': <SeasonPanel playerId={playerId} />,
         'profile-solo': <SoloLeaderboardPanel playerId={playerId} />,
+        'profile-rivals': <PlayerRivalsPanel playerId={playerId} onViewProfile={onViewProfile} />,
+        'profile-formats': <FormatStatsPanel playerId={playerId} />,
         'community-leaderboard': <Leaderboard playerId={playerId} />,
         'community-friends': (
             <FriendsPanel
