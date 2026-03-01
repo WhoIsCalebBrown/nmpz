@@ -9,6 +9,7 @@ import Leaderboard from '@/components/welcome/Leaderboard';
 import LeaderboardMoversPanel from '@/components/welcome/LeaderboardMoversPanel';
 import LiveGamesList from '@/components/welcome/LiveGamesList';
 import MapDifficultyPanel from '@/components/welcome/MapDifficultyPanel';
+import MatchmakingStatsPanel from '@/components/welcome/MatchmakingStatsPanel';
 import PlayerStatsPanel from '@/components/welcome/PlayerStatsPanel';
 import SeasonPanel from '@/components/welcome/SeasonPanel';
 import SoloLeaderboardPanel from '@/components/welcome/SoloLeaderboardPanel';
@@ -16,7 +17,7 @@ import { Eye, User, Users } from 'lucide-react';
 
 type ActiveGroup = 'none' | 'profile' | 'community' | 'watch';
 type ProfileTab = 'stats' | 'history' | 'achievements' | 'season' | 'solo';
-type CommunityTab = 'leaderboard' | 'friends' | 'highlights' | 'active' | 'records' | 'movers' | 'maps';
+type CommunityTab = 'leaderboard' | 'friends' | 'highlights' | 'active' | 'records' | 'movers' | 'maps' | 'matchmaking';
 
 function Divider({ label }: { label: string }) {
     return (
@@ -50,6 +51,7 @@ const COMMUNITY_TABS: { key: CommunityTab; label: string }[] = [
     { key: 'records', label: 'records' },
     { key: 'movers', label: 'movers' },
     { key: 'maps', label: 'maps' },
+    { key: 'matchmaking', label: 'mmr' },
 ];
 
 export default function BrowsePanel({
@@ -141,6 +143,7 @@ export default function BrowsePanel({
         'community-records': <GlobalRecordsPanel playerId={playerId} onViewProfile={onViewProfile} />,
         'community-movers': <LeaderboardMoversPanel playerId={playerId} onViewProfile={onViewProfile} />,
         'community-maps': <MapDifficultyPanel playerId={playerId} />,
+        'community-matchmaking': <MatchmakingStatsPanel playerId={playerId} />,
         'watch': <LiveGamesList playerId={playerId} />,
     };
 
