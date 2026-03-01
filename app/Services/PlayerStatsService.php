@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Game;
 use App\Models\PlayerStats;
 use App\Models\Round;
+use Illuminate\Support\Collection;
 
 class PlayerStatsService
 {
@@ -59,6 +60,74 @@ class PlayerStatsService
 
             $stats->save();
         }
+    }
+
+    /**
+     * Aggregate win/loss stats per opponent for a player.
+     *
+     * @return array<string, array{games: int, wins: int, losses: int}>
+     */
+    public static function opponentAggregates(string $playerId): array
+    {
+        $games = Game::completed()
+            ->forPlayer($playerId)
+            ->get(['id', 'player_one_id', 'player_two_id', 'winner_id']);
+
+        $opponents = [];
+
+        foreach ($games as $game) {
+            $opponentId = $game->player_one_id === $playerId
+                ? $game->player_two_id
+                : $game->player_one_id;
+
+            if (! isset($opponents[$opponentId])) {
+                $opponents[$opponentId] = ['games' => 0, 'wins' => 0, 'losses' => 0];
+            }
+
+            $opponents[$opponentId]['games']++;
+
+            if ($game->winner_id === $playerId) {
+                $opponents[$opponentId]['wins']++;
+            } elseif ($game->winner_id === $opponentId) {
+                $opponents[$opponentId]['losses']++;
+            }
+        }
+
+        return $opponents;
+    }
+
+    /**
+     * Win rate per map for a player. Returns collection of maps with min 3 games.
+     *
+     * @return Collection<int, array{name: string, games: int, wins: int, win_rate: float}>
+     */
+    public static function mapPerformance(string $playerId): Collection
+    {
+        $games = Game::completed()
+            ->forPlayer($playerId)
+            ->with('map')
+            ->get(['id', 'map_id', 'winner_id', 'player_one_id', 'player_two_id']);
+
+        $mapStats = [];
+        foreach ($games as $game) {
+            $mapName = $game->map?->display_name ?? $game->map?->name ?? 'Unknown';
+            $mapId = $game->map_id;
+
+            if (! isset($mapStats[$mapId])) {
+                $mapStats[$mapId] = ['name' => $mapName, 'games' => 0, 'wins' => 0];
+            }
+
+            $mapStats[$mapId]['games']++;
+            if ($game->winner_id === $playerId) {
+                $mapStats[$mapId]['wins']++;
+            }
+        }
+
+        return collect($mapStats)
+            ->filter(fn ($s) => $s['games'] >= 3)
+            ->map(fn ($s) => array_merge($s, [
+                'win_rate' => round($s['wins'] / $s['games'] * 100, 1),
+            ]));
     }
 
     public function recordGameEnd(Game $game): void

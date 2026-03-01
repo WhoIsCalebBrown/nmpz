@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\GameStatus;
-use App\Models\Game;
 use App\Models\Player;
+use App\Services\PlayerStatsService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 
 class PlayerRivalsController extends Controller
 {
@@ -14,31 +12,7 @@ class PlayerRivalsController extends Controller
     {
         $playerId = $player->getKey();
 
-        // Get all completed games for this player
-        $games = Game::query()
-            ->where('status', GameStatus::Completed)
-            ->where(fn ($q) => $q->where('player_one_id', $playerId)->orWhere('player_two_id', $playerId))
-            ->get(['id', 'player_one_id', 'player_two_id', 'winner_id']);
-
-        $opponents = [];
-
-        foreach ($games as $game) {
-            $opponentId = $game->player_one_id === $playerId
-                ? $game->player_two_id
-                : $game->player_one_id;
-
-            if (! isset($opponents[$opponentId])) {
-                $opponents[$opponentId] = ['games' => 0, 'wins' => 0, 'losses' => 0];
-            }
-
-            $opponents[$opponentId]['games']++;
-
-            if ($game->winner_id === $playerId) {
-                $opponents[$opponentId]['wins']++;
-            } elseif ($game->winner_id === $opponentId) {
-                $opponents[$opponentId]['losses']++;
-            }
-        }
+        $opponents = PlayerStatsService::opponentAggregates($playerId);
 
         if (empty($opponents)) {
             return response()->json([

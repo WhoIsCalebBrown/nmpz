@@ -1,37 +1,17 @@
-import { useEffect, useState } from 'react';
+import StatsPanel from '@/components/ui/StatsPanel';
 import { useApiClient } from '@/hooks/useApiClient';
-
-type NotableStreak = {
-    length: number;
-    start_date: string;
-    end_date: string;
-    active: boolean;
-};
-
-type StreaksData = {
-    current_streak: number;
-    best_streak: number;
-    notable_streaks: NotableStreak[];
-};
+import { useAsyncData } from '@/hooks/useAsyncData';
+import type { StreaksData } from '@/types/stats';
 
 export default function PlayerStreaksPanel({ playerId }: { playerId: string }) {
     const api = useApiClient(playerId);
-    const [data, setData] = useState<StreaksData | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        void api.fetchPlayerStreaks(playerId).then((res) => {
-            setData(res.data as StreaksData);
-            setLoading(false);
-        });
-    }, []);
+    const { data, loading } = useAsyncData<StreaksData>(() => api.fetchPlayerStreaks(playerId), []);
 
     if (loading) return <div className="text-xs text-white/30">Loading streaks...</div>;
     if (!data) return <div className="text-xs text-white/30">No streak data</div>;
 
     return (
-        <div className="w-full rounded border border-white/10 bg-black/60 p-3 backdrop-blur-sm">
-            <div className="mb-2 text-xs text-white/60">Win Streaks</div>
+        <StatsPanel title="Win Streaks">
             <div className="mb-3 grid grid-cols-2 gap-2">
                 <div className="rounded bg-white/5 p-2 text-center">
                     <div className={`text-sm font-semibold ${data.current_streak > 0 ? 'text-green-400' : 'text-white/50'}`}>
@@ -64,6 +44,6 @@ export default function PlayerStreaksPanel({ playerId }: { playerId: string }) {
                     </div>
                 </div>
             )}
-        </div>
+        </StatsPanel>
     );
 }

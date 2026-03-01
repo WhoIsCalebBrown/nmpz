@@ -1,35 +1,29 @@
-import { useEffect, useState } from 'react';
+import StatsPanel from '@/components/ui/StatsPanel';
 import type { Achievement } from '@/components/welcome/types';
 import { useApiClient } from '@/hooks/useApiClient';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export default function AchievementsPanel({ playerId }: { playerId: string }) {
     const api = useApiClient(playerId);
-    const [achievements, setAchievements] = useState<Achievement[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        void api.fetchAchievements().then((res) => {
-            setAchievements(res.data as Achievement[]);
-            setLoading(false);
-        });
-    }, []);
+    const { data, loading } = useAsyncData<Achievement[]>(() => api.fetchAchievements(), []);
+    const achievements = data ?? [];
 
     if (loading) {
         return (
-            <div className="w-full max-w-md rounded border border-white/10 bg-black/60 p-3 backdrop-blur-sm">
+            <StatsPanel className="max-w-md">
                 <div className="py-4 text-center text-xs text-white/30">Loading...</div>
-            </div>
+            </StatsPanel>
         );
     }
 
     const earned = achievements.filter((a) => a.earned_at !== null).length;
 
     return (
-        <div className="w-full max-w-md rounded border border-white/10 bg-black/60 p-3 backdrop-blur-sm">
-            <div className="mb-2 flex items-center justify-between text-xs text-white/60">
-                <span>Achievements</span>
-                <span>{earned} / {achievements.length}</span>
-            </div>
+        <StatsPanel
+            title="Achievements"
+            titleRight={<span className="text-xs text-white/60">{earned} / {achievements.length}</span>}
+            className="max-w-md"
+        >
             <div className="grid grid-cols-2 gap-2">
                 {achievements.map((a) => (
                     <div
@@ -45,6 +39,6 @@ export default function AchievementsPanel({ playerId }: { playerId: string }) {
                     </div>
                 ))}
             </div>
-        </div>
+        </StatsPanel>
     );
 }

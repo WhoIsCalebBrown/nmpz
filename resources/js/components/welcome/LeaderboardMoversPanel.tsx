@@ -1,19 +1,7 @@
-import { useEffect, useState } from 'react';
+import StatsPanel from '@/components/ui/StatsPanel';
 import { useApiClient } from '@/hooks/useApiClient';
-
-type Mover = {
-    player_id: string;
-    name: string;
-    net_change: number;
-    elo_rating: number;
-    rank: string;
-    games_played: number;
-};
-
-type MoversData = {
-    climbers: Mover[];
-    fallers: Mover[];
-};
+import { useAsyncData } from '@/hooks/useAsyncData';
+import type { MoversData } from '@/types/stats';
 
 export default function LeaderboardMoversPanel({
     playerId,
@@ -23,15 +11,7 @@ export default function LeaderboardMoversPanel({
     onViewProfile?: (id: string) => void;
 }) {
     const api = useApiClient(playerId);
-    const [data, setData] = useState<MoversData | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        void api.fetchLeaderboardMovers().then((res) => {
-            setData(res.data as MoversData);
-            setLoading(false);
-        });
-    }, []);
+    const { data, loading } = useAsyncData<MoversData>(() => api.fetchLeaderboardMovers(), []);
 
     if (loading) return <div className="text-xs text-white/30">Loading movers...</div>;
     if (!data) return <div className="text-xs text-white/30">No data available</div>;
@@ -39,8 +19,7 @@ export default function LeaderboardMoversPanel({
     const hasMovers = (data.climbers?.length ?? 0) > 0 || (data.fallers?.length ?? 0) > 0;
 
     return (
-        <div className="w-full rounded border border-white/10 bg-black/60 p-3 backdrop-blur-sm">
-            <div className="mb-2 text-xs text-white/60">Leaderboard Movers</div>
+        <StatsPanel title="Leaderboard Movers">
             {!hasMovers ? (
                 <div className="py-4 text-center text-xs text-white/30">No significant movement</div>
             ) : (
@@ -89,6 +68,6 @@ export default function LeaderboardMoversPanel({
                     )}
                 </div>
             )}
-        </div>
+        </StatsPanel>
     );
 }

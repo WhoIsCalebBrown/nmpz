@@ -1,45 +1,23 @@
-import { useEffect, useState } from 'react';
+import StatsPanel from '@/components/ui/StatsPanel';
 import { useApiClient } from '@/hooks/useApiClient';
-
-type MapEntry = {
-    map_id: string;
-    map_name: string;
-    games_played: number;
-    wins: number;
-    win_rate: number;
-};
-
-type FavoriteMapsData = {
-    most_played: MapEntry | null;
-    best_win_rate: MapEntry | null;
-    all_maps: MapEntry[];
-};
+import { useAsyncData } from '@/hooks/useAsyncData';
+import type { FavoriteMapsData } from '@/types/stats';
 
 export default function FavoriteMapsPanel({ playerId }: { playerId: string }) {
     const api = useApiClient(playerId);
-    const [data, setData] = useState<FavoriteMapsData | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        void api.fetchPlayerFavoriteMaps(playerId).then((res) => {
-            setData(res.data as FavoriteMapsData);
-            setLoading(false);
-        });
-    }, []);
+    const { data, loading } = useAsyncData<FavoriteMapsData>(() => api.fetchPlayerFavoriteMaps(playerId), []);
 
     if (loading) return <div className="text-xs text-white/30">Loading maps...</div>;
     if (!data || data.all_maps.length === 0) {
         return (
-            <div className="w-full rounded border border-white/10 bg-black/60 p-3 backdrop-blur-sm">
-                <div className="mb-2 text-xs text-white/60">Favorite Maps</div>
+            <StatsPanel title="Favorite Maps">
                 <div className="py-4 text-center text-xs text-white/30">No map data yet</div>
-            </div>
+            </StatsPanel>
         );
     }
 
     return (
-        <div className="w-full rounded border border-white/10 bg-black/60 p-3 backdrop-blur-sm">
-            <div className="mb-2 text-xs text-white/60">Favorite Maps</div>
+        <StatsPanel title="Favorite Maps">
 
             {(data.most_played || data.best_win_rate) && (
                 <div className="mb-3 grid grid-cols-2 gap-2">
@@ -71,6 +49,6 @@ export default function FavoriteMapsPanel({ playerId }: { playerId: string }) {
                     </div>
                 ))}
             </div>
-        </div>
+        </StatsPanel>
     );
 }

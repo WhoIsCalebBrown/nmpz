@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\GameStatus;
 use App\Models\Game;
 use App\Models\Player;
 use Illuminate\Http\JsonResponse;
@@ -13,9 +12,8 @@ class PlayerRankPerformanceController extends Controller
     {
         $playerId = $player->getKey();
 
-        $games = Game::query()
-            ->where('status', GameStatus::Completed)
-            ->where(fn ($q) => $q->where('player_one_id', $playerId)->orWhere('player_two_id', $playerId))
+        $games = Game::completed()
+            ->forPlayer($playerId)
             ->with(['playerOne', 'playerTwo'])
             ->get(['id', 'player_one_id', 'player_two_id', 'winner_id']);
 

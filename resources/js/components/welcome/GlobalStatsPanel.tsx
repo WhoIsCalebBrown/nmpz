@@ -1,38 +1,17 @@
-import { useEffect, useState } from 'react';
+import StatsPanel from '@/components/ui/StatsPanel';
 import { useApiClient } from '@/hooks/useApiClient';
-
-type GlobalStatsData = {
-    total_games: number;
-    total_rounds: number;
-    total_players: number;
-    active_players_7d: number;
-    average_round_score: number;
-    solo_games_played: number;
-    daily_challenges_completed: number;
-    games_per_day: { date: string; count: number }[];
-    rank_distribution: Record<string, number>;
-    popular_maps: { name: string; games: number }[];
-};
+import { useAsyncData } from '@/hooks/useAsyncData';
+import type { GlobalStatsData } from '@/types/stats';
 
 export default function GlobalStatsPanel({ playerId }: { playerId: string }) {
     const api = useApiClient(playerId);
-    const [data, setData] = useState<GlobalStatsData | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        void api.fetchGlobalStats().then((res) => {
-            setData(res.data as GlobalStatsData);
-            setLoading(false);
-        });
-    }, []);
+    const { data, loading } = useAsyncData<GlobalStatsData>(() => api.fetchGlobalStats(), []);
 
     if (loading) return <div className="text-xs text-white/30">Loading global stats...</div>;
     if (!data) return <div className="text-xs text-white/30">No stats available</div>;
 
     return (
-        <div className="w-full rounded border border-white/10 bg-black/60 p-3 backdrop-blur-sm">
-            <div className="mb-2 text-xs text-white/60">Global Stats</div>
-
+        <StatsPanel title="Global Stats">
             <div className="mb-3 grid grid-cols-3 gap-2">
                 {[
                     { label: 'Players', value: data.total_players },
@@ -95,6 +74,6 @@ export default function GlobalStatsPanel({ playerId }: { playerId: string }) {
                     </div>
                 </div>
             )}
-        </div>
+        </StatsPanel>
     );
 }

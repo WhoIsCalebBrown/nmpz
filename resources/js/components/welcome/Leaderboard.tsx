@@ -1,20 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import RankBadge from '@/components/welcome/RankBadge';
 import type { LeaderboardEntry } from '@/components/welcome/types';
 import { useApiClient } from '@/hooks/useApiClient';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export default function Leaderboard({ playerId }: { playerId: string }) {
     const api = useApiClient(playerId);
-    const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+    const { data, loading } = useAsyncData<LeaderboardEntry[]>(() => api.fetchLeaderboard(), []);
+    const entries = data ?? [];
     const [sortBy, setSortBy] = useState<'elo_rating' | 'games_won' | 'win_rate' | 'best_win_streak'>('elo_rating');
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        void api.fetchLeaderboard().then((res) => {
-            setEntries(res.data as LeaderboardEntry[]);
-            setLoading(false);
-        });
-    }, []);
 
     const sorted = [...entries].sort((a, b) => b[sortBy] - a[sortBy]);
 

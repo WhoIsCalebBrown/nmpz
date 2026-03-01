@@ -34,10 +34,9 @@ class TopPlayersByMapController extends Controller
                 if ($topWinner) {
                     $player = Player::with('user')->find($topWinner->winner_id);
                     if ($player) {
-                        $totalGames = Game::query()
+                        $totalGames = Game::completed()
                             ->where('map_id', $mapId)
-                            ->where('status', GameStatus::Completed)
-                            ->where(fn ($q) => $q->where('player_one_id', $player->getKey())->orWhere('player_two_id', $player->getKey()))
+                            ->forPlayer($player->getKey())
                             ->count();
 
                         $topPlayer = [

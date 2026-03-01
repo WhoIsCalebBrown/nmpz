@@ -20,9 +20,8 @@ class MapDifficultyController extends Controller
         foreach ($maps as $map) {
             $mapId = $map->getKey();
 
-            $gameCount = Game::query()
+            $gameCount = Game::completed()
                 ->where('map_id', $mapId)
-                ->where('status', GameStatus::Completed)
                 ->count();
 
             if ($gameCount === 0) {

@@ -22,9 +22,8 @@ class MapStatsController extends Controller
             $mapId = $map->getKey();
 
             // Total multiplayer games on this map
-            $totalGames = Game::query()
+            $totalGames = Game::completed()
                 ->where('map_id', $mapId)
-                ->where('status', GameStatus::Completed)
                 ->count();
 
             // Unique multiplayer players
@@ -61,9 +60,8 @@ class MapStatsController extends Controller
                 ->count();
 
             // Games per day (last 14 days)
-            $gamesPerDay = Game::query()
+            $gamesPerDay = Game::completed()
                 ->where('map_id', $mapId)
-                ->where('status', GameStatus::Completed)
                 ->where('created_at', '>=', now()->subDays(14))
                 ->selectRaw("DATE(created_at) as date, COUNT(*) as count")
                 ->groupBy('date')

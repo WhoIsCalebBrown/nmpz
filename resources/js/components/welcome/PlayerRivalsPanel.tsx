@@ -1,21 +1,7 @@
-import { useEffect, useState } from 'react';
+import StatsPanel from '@/components/ui/StatsPanel';
 import { useApiClient } from '@/hooks/useApiClient';
-
-type RivalEntry = {
-    player_id: string;
-    name: string;
-    elo_rating: number;
-    games_played: number;
-    wins: number;
-    losses: number;
-    win_rate: number;
-} | null;
-
-type RivalsData = {
-    most_played: RivalEntry;
-    nemesis: RivalEntry;
-    best_matchup: RivalEntry;
-};
+import { useAsyncData } from '@/hooks/useAsyncData';
+import type { RivalEntry, RivalsData } from '@/types/stats';
 
 function RivalCard({
     label,
@@ -54,26 +40,14 @@ export default function PlayerRivalsPanel({
     onViewProfile?: (id: string) => void;
 }) {
     const api = useApiClient(playerId);
-    const [data, setData] = useState<RivalsData | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        void api
-            .fetchPlayerRivals(playerId)
-            .then((res) => {
-                setData(res.data as RivalsData);
-                setLoading(false);
-            })
-            .catch(() => setLoading(false));
-    }, []);
+    const { data, loading } = useAsyncData<RivalsData>(() => api.fetchPlayerRivals(playerId), []);
 
     if (loading) return <div className="text-xs text-white/30">Loading rivals...</div>;
 
     const hasAny = data?.most_played || data?.nemesis || data?.best_matchup;
 
     return (
-        <div className="w-full rounded border border-white/10 bg-black/60 p-3 backdrop-blur-sm">
-            <div className="mb-2 text-xs text-white/60">Your Rivals</div>
+        <StatsPanel title="Your Rivals">
             {!hasAny ? (
                 <div className="py-4 text-center text-xs text-white/30">Play more games to find rivals</div>
             ) : (
@@ -104,6 +78,6 @@ export default function PlayerRivalsPanel({
                     )}
                 </div>
             )}
-        </div>
+        </StatsPanel>
     );
 }

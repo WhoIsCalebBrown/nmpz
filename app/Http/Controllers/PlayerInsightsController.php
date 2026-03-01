@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\GameStatus;
-use App\Models\Game;
 use App\Models\Player;
-use App\Models\Round;
+use App\Services\PlayerStatsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
@@ -57,20 +55,22 @@ class PlayerInsightsController extends Controller
         }
 
         // 3. Map performance insight
-        $mapPerformance = $this->getMapPerformance($playerId);
-        if ($mapPerformance['worst'] && $mapPerformance['best']) {
-            if ($mapPerformance['worst']['win_rate'] < 30) {
+        $mapStats = PlayerStatsService::mapPerformance($playerId);
+        $best = $mapStats->sortByDesc('win_rate')->first();
+        $worst = $mapStats->sortBy('win_rate')->first();
+        if ($worst && $best) {
+            if ($worst['win_rate'] < 30) {
                 $insights[] = [
                     'type' => 'tip',
                     'category' => 'map',
-                    'message' => "You struggle on {$mapPerformance['worst']['name']} ({$mapPerformance['worst']['win_rate']}% win rate). Consider practicing that region.",
+                    'message' => "You struggle on {$worst['name']} ({$worst['win_rate']}% win rate). Consider practicing that region.",
                 ];
             }
-            if ($mapPerformance['best']['win_rate'] >= 70) {
+            if ($best['win_rate'] >= 70) {
                 $insights[] = [
                     'type' => 'positive',
                     'category' => 'map',
-                    'message' => "You dominate on {$mapPerformance['best']['name']} with a {$mapPerformance['best']['win_rate']}% win rate!",
+                    'message' => "You dominate on {$best['name']} with a {$best['win_rate']}% win rate!",
                 ];
             }
         }
@@ -125,45 +125,5 @@ class PlayerInsightsController extends Controller
             'player_id' => $playerId,
             'insights' => $insights,
         ]);
-    }
-
-    private function getMapPerformance(string $playerId): array
-    {
-        $games = Game::query()
-            ->where('status', GameStatus::Completed)
-            ->where(fn ($q) => $q->where('player_one_id', $playerId)->orWhere('player_two_id', $playerId))
-            ->with('map')
-            ->get(['id', 'map_id', 'winner_id', 'player_one_id', 'player_two_id']);
-
-        $mapStats = [];
-        foreach ($games as $game) {
-            $mapName = $game->map?->display_name ?? $game->map?->name ?? 'Unknown';
-            $mapId = $game->map_id;
-
-            if (! isset($mapStats[$mapId])) {
-                $mapStats[$mapId] = ['name' => $mapName, 'games' => 0, 'wins' => 0];
-            }
-
-            $mapStats[$mapId]['games']++;
-            if ($game->winner_id === $playerId) {
-                $mapStats[$mapId]['wins']++;
-            }
-        }
-
-        // Filter to maps with at least 3 games
-        $mapStats = array_filter($mapStats, fn ($s) => $s['games'] >= 3);
-
-        if (empty($mapStats)) {
-            return ['best' => null, 'worst' => null];
-        }
-
-        foreach ($mapStats as &$ms) {
-            $ms['win_rate'] = round($ms['wins'] / $ms['games'] * 100, 1);
-        }
-
-        $best = collect($mapStats)->sortByDesc('win_rate')->first();
-        $worst = collect($mapStats)->sortBy('win_rate')->first();
-
-        return ['best' => $best, 'worst' => $worst];
     }
 }

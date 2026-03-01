@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\GameStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,6 +32,27 @@ class Game extends Model
             'allow_spectators' => 'boolean',
             'spectator_count' => 'integer',
         ];
+    }
+
+    public function scopeCompleted(Builder $query): Builder
+    {
+        return $query->where('status', GameStatus::Completed);
+    }
+
+    public function scopeForPlayer(Builder $query, string $playerId): Builder
+    {
+        return $query->where(fn (Builder $q) => $q->where('player_one_id', $playerId)->orWhere('player_two_id', $playerId));
+    }
+
+    public function scopeBetweenPlayers(Builder $query, string $playerOneId, string $playerTwoId): Builder
+    {
+        return $query->where(function (Builder $q) use ($playerOneId, $playerTwoId) {
+            $q->where(function (Builder $q2) use ($playerOneId, $playerTwoId) {
+                $q2->where('player_one_id', $playerOneId)->where('player_two_id', $playerTwoId);
+            })->orWhere(function (Builder $q2) use ($playerOneId, $playerTwoId) {
+                $q2->where('player_one_id', $playerTwoId)->where('player_two_id', $playerOneId);
+            });
+        });
     }
 
     public function map(): BelongsTo

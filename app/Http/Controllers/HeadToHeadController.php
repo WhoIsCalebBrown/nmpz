@@ -15,15 +15,8 @@ class HeadToHeadController extends Controller
         $playerId = $player->getKey();
         $opponentId = $opponent->getKey();
 
-        $games = Game::query()
-            ->where('status', GameStatus::Completed)
-            ->where(function ($q) use ($playerId, $opponentId) {
-                $q->where(function ($q2) use ($playerId, $opponentId) {
-                    $q2->where('player_one_id', $playerId)->where('player_two_id', $opponentId);
-                })->orWhere(function ($q2) use ($playerId, $opponentId) {
-                    $q2->where('player_one_id', $opponentId)->where('player_two_id', $playerId);
-                });
-            })
+        $games = Game::completed()
+            ->betweenPlayers($playerId, $opponentId)
             ->orderByDesc('created_at')
             ->get();
 

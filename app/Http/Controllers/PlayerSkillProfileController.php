@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\GameStatus;
 use App\Models\Game;
 use App\Models\Player;
 use App\Models\Round;
@@ -107,10 +106,9 @@ class PlayerSkillProfileController extends Controller
     private function calculateClutch(string $playerId): float
     {
         // Close games: both players ended with health > 0, or winner won with < 2000 health remaining
-        $closeGames = Game::query()
-            ->where('status', GameStatus::Completed)
+        $closeGames = Game::completed()
             ->whereNotNull('winner_id')
-            ->where(fn ($q) => $q->where('player_one_id', $playerId)->orWhere('player_two_id', $playerId))
+            ->forPlayer($playerId)
             ->where(function ($q) {
                 $q->where(function ($q2) {
                     // Winner had less than 40% health remaining

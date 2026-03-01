@@ -18,7 +18,7 @@ class GlobalStatsController extends Controller
     public function __invoke(): JsonResponse
     {
         $data = Cache::remember(CacheKeys::GLOBAL_STATS_DASHBOARD, 300, function () {
-            $totalGames = Game::query()->where('status', GameStatus::Completed)->count();
+            $totalGames = Game::completed()->count();
             $totalRounds = Round::query()->whereNotNull('finished_at')->count();
             $totalPlayers = Player::query()->count();
 
@@ -35,8 +35,7 @@ class GlobalStatsController extends Controller
                 ->value('avg_score');
 
             // Games per day (last 14 days)
-            $gamesPerDay = Game::query()
-                ->where('status', GameStatus::Completed)
+            $gamesPerDay = Game::completed()
                 ->where('created_at', '>=', now()->subDays(14))
                 ->selectRaw("DATE(created_at) as date, COUNT(*) as count")
                 ->groupBy('date')
@@ -61,8 +60,7 @@ class GlobalStatsController extends Controller
             $dailyChallengesCompleted = DailyChallenge::query()->count();
 
             // Most popular maps (by game count)
-            $popularMaps = Game::query()
-                ->where('status', GameStatus::Completed)
+            $popularMaps = Game::completed()
                 ->join('maps', 'maps.id', '=', 'games.map_id')
                 ->selectRaw('COALESCE(maps.display_name, maps.name) as map_name, COUNT(*) as game_count')
                 ->groupBy('map_name')

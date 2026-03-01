@@ -97,8 +97,7 @@ class CommunityHighlightsController extends Controller
     private function hottestRivalry(): ?array
     {
         // Most games between any two players in the last 14 days
-        $rivalry = Game::query()
-            ->where('status', GameStatus::Completed)
+        $rivalry = Game::completed()
             ->where('created_at', '>=', now()->subDays(14))
             ->selectRaw('
                 CASE WHEN player_one_id < player_two_id THEN player_one_id ELSE player_two_id END as p1,
@@ -116,16 +115,9 @@ class CommunityHighlightsController extends Controller
         $players = Player::with('user')->whereIn('id', [$rivalry->p1, $rivalry->p2])->get()->keyBy('id');
 
         // Get win counts
-        $p1Wins = Game::query()
-            ->where('status', GameStatus::Completed)
+        $p1Wins = Game::completed()
             ->where('created_at', '>=', now()->subDays(14))
-            ->where(function ($q) use ($rivalry) {
-                $q->where(function ($q2) use ($rivalry) {
-                    $q2->where('player_one_id', $rivalry->p1)->where('player_two_id', $rivalry->p2);
-                })->orWhere(function ($q2) use ($rivalry) {
-                    $q2->where('player_one_id', $rivalry->p2)->where('player_two_id', $rivalry->p1);
-                });
-            })
+            ->betweenPlayers($rivalry->p1, $rivalry->p2)
             ->where('winner_id', $rivalry->p1)
             ->count();
 

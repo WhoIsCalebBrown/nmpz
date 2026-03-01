@@ -1,46 +1,17 @@
-import { useEffect, useState } from 'react';
+import StatsPanel from '@/components/ui/StatsPanel';
 import { useApiClient } from '@/hooks/useApiClient';
-
-type Highlights = {
-    play_of_the_day: {
-        player_id: string;
-        player_name: string;
-        score: number;
-        game_id: string;
-        round_number: number;
-    } | null;
-    rising_stars: {
-        player_id: string;
-        player_name: string;
-        elo_rating: number;
-        elo_change: number;
-        games_played: number;
-    }[];
-    hottest_rivalry: {
-        player_one: { id: string; name: string; wins: number };
-        player_two: { id: string; name: string; wins: number };
-        total_games: number;
-    } | null;
-};
+import { useAsyncData } from '@/hooks/useAsyncData';
+import type { Highlights } from '@/types/stats';
 
 export default function CommunityHighlightsPanel({ playerId }: { playerId: string }) {
     const api = useApiClient(playerId);
-    const [data, setData] = useState<Highlights | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        void api.fetchCommunityHighlights().then((res) => {
-            setData(res.data as Highlights);
-            setLoading(false);
-        }).catch(() => setLoading(false));
-    }, []);
+    const { data, loading } = useAsyncData<Highlights>(() => api.fetchCommunityHighlights(), []);
 
     if (loading) return <div className="text-xs text-white/30">Loading highlights...</div>;
     if (!data) return <div className="text-xs text-white/30">No highlights available</div>;
 
     return (
-        <div className="w-full rounded border border-white/10 bg-black/60 p-3 backdrop-blur-sm">
-            <div className="mb-2 text-xs text-white/60">Community Highlights</div>
+        <StatsPanel title="Community Highlights">
             <div className="space-y-3">
                 {data.play_of_the_day && (
                     <div className="rounded bg-amber-400/5 border border-amber-400/20 p-2">
@@ -82,6 +53,6 @@ export default function CommunityHighlightsPanel({ playerId }: { playerId: strin
                     <div className="py-2 text-center text-xs text-white/30">No highlights yet today</div>
                 )}
             </div>
-        </div>
+        </StatsPanel>
     );
 }

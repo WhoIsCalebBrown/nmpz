@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\GameStatus;
 use App\Models\Game;
 use App\Models\Player;
+use App\Services\PlayerStatsService;
 use Illuminate\Http\JsonResponse;
 
 class PlayerNemesisHistoryController extends Controller
@@ -13,27 +13,7 @@ class PlayerNemesisHistoryController extends Controller
     {
         $playerId = $player->getKey();
 
-        // Find the nemesis (opponent with lowest win rate, min 3 games)
-        $games = Game::query()
-            ->where('status', GameStatus::Completed)
-            ->where(fn ($q) => $q->where('player_one_id', $playerId)->orWhere('player_two_id', $playerId))
-            ->get(['id', 'player_one_id', 'player_two_id', 'winner_id']);
-
-        $opponents = [];
-        foreach ($games as $game) {
-            $opponentId = $game->player_one_id === $playerId
-                ? $game->player_two_id
-                : $game->player_one_id;
-
-            if (! isset($opponents[$opponentId])) {
-                $opponents[$opponentId] = ['games' => 0, 'wins' => 0];
-            }
-
-            $opponents[$opponentId]['games']++;
-            if ($game->winner_id === $playerId) {
-                $opponents[$opponentId]['wins']++;
-            }
-        }
+        $opponents = PlayerStatsService::opponentAggregates($playerId);
 
         // Filter to min 3 games, find lowest win rate
         $nemesisId = collect($opponents)
@@ -54,15 +34,8 @@ class PlayerNemesisHistoryController extends Controller
         $nemesisStats = $opponents[$nemesisId];
 
         // Get the full game history against nemesis
-        $h2hGames = Game::query()
-            ->where('status', GameStatus::Completed)
-            ->where(function ($q) use ($playerId, $nemesisId) {
-                $q->where(function ($q2) use ($playerId, $nemesisId) {
-                    $q2->where('player_one_id', $playerId)->where('player_two_id', $nemesisId);
-                })->orWhere(function ($q2) use ($playerId, $nemesisId) {
-                    $q2->where('player_one_id', $nemesisId)->where('player_two_id', $playerId);
-                });
-            })
+        $h2hGames = Game::completed()
+            ->betweenPlayers($playerId, $nemesisId)
             ->with('map')
             ->orderByDesc('created_at')
             ->get();

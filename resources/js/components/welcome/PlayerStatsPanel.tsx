@@ -1,20 +1,13 @@
-import { useEffect, useState } from 'react';
+import StatsPanel from '@/components/ui/StatsPanel';
 import RankBadge from '@/components/welcome/RankBadge';
 import type { PlayerStatsData } from '@/components/welcome/types';
 import { useApiClient } from '@/hooks/useApiClient';
+import { useAsyncData } from '@/hooks/useAsyncData';
 import { formatDistance } from '@/lib/format';
 
 export default function PlayerStatsPanel({ playerId }: { playerId: string }) {
     const api = useApiClient(playerId);
-    const [stats, setStats] = useState<PlayerStatsData | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        void api.fetchPlayerStats().then((res) => {
-            setStats(res.data as PlayerStatsData);
-            setLoading(false);
-        });
-    }, []);
+    const { data: stats, loading } = useAsyncData<PlayerStatsData>(() => api.fetchPlayerStats(), []);
 
     if (loading) {
         return <div className="text-xs text-white/30">Loading stats...</div>;
@@ -38,13 +31,10 @@ export default function PlayerStatsPanel({ playerId }: { playerId: string }) {
     ];
 
     return (
-        <div className="w-full rounded border border-white/10 bg-black/60 p-3 backdrop-blur-sm">
-            <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs text-white/40">Your Stats</span>
-                {stats.elo_rating !== undefined && stats.rank && (
-                    <RankBadge rank={stats.rank} elo={stats.elo_rating} />
-                )}
-            </div>
+        <StatsPanel
+            title="Your Stats"
+            titleRight={stats.elo_rating !== undefined && stats.rank ? <RankBadge rank={stats.rank} elo={stats.elo_rating} /> : undefined}
+        >
             <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
                 {rows.map((row) => (
                     <div key={row.label} className="contents">
@@ -53,6 +43,6 @@ export default function PlayerStatsPanel({ playerId }: { playerId: string }) {
                     </div>
                 ))}
             </div>
-        </div>
+        </StatsPanel>
     );
 }

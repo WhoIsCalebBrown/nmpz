@@ -1,40 +1,19 @@
-import { useEffect, useState } from 'react';
+import ProgressBar from '@/components/ui/ProgressBar';
+import StatsPanel from '@/components/ui/StatsPanel';
 import { useApiClient } from '@/hooks/useApiClient';
-
-type FormatStat = {
-    format: string;
-    games_played: number;
-    wins: number;
-    losses: number;
-    draws: number;
-    win_rate: number;
-};
-
-const FORMAT_LABELS: Record<string, string> = {
-    classic: 'Classic',
-    best_of_3: 'Best of 3',
-    best_of_5: 'Best of 5',
-    best_of_7: 'Best of 7',
-};
+import { useAsyncData } from '@/hooks/useAsyncData';
+import { FORMAT_LABELS } from '@/lib/colors';
+import type { FormatStat } from '@/types/stats';
 
 export default function FormatStatsPanel({ playerId }: { playerId: string }) {
     const api = useApiClient(playerId);
-    const [stats, setStats] = useState<FormatStat[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        void api.fetchPlayerFormatStats(playerId).then((res) => {
-            const data = res.data as { format_stats: FormatStat[] };
-            setStats(data.format_stats ?? []);
-            setLoading(false);
-        }).catch(() => setLoading(false));
-    }, []);
+    const { data, loading } = useAsyncData<{ format_stats: FormatStat[] }>(() => api.fetchPlayerFormatStats(playerId), []);
+    const stats = data?.format_stats ?? [];
 
     if (loading) return <div className="text-xs text-white/30">Loading format stats...</div>;
 
     return (
-        <div className="w-full rounded border border-white/10 bg-black/60 p-3 backdrop-blur-sm">
-            <div className="mb-2 text-xs text-white/60">Win Rate by Format</div>
+        <StatsPanel title="Win Rate by Format">
             {stats.length === 0 ? (
                 <div className="py-4 text-center text-xs text-white/30">No format data yet</div>
             ) : (
@@ -45,12 +24,7 @@ export default function FormatStatsPanel({ playerId }: { playerId: string }) {
                                 <span className="text-white/70">{FORMAT_LABELS[s.format] ?? s.format}</span>
                                 <span className="text-white/50">{s.win_rate}%</span>
                             </div>
-                            <div className="mb-1 h-1.5 rounded-full bg-white/10">
-                                <div
-                                    className="h-full rounded-full bg-blue-400/50"
-                                    style={{ width: `${s.win_rate}%` }}
-                                />
-                            </div>
+                            <ProgressBar value={s.win_rate} className="mb-1" />
                             <div className="flex justify-between text-[9px] text-white/30">
                                 <span>{s.wins}W / {s.losses}L{s.draws > 0 ? ` / ${s.draws}D` : ''}</span>
                                 <span>{s.games_played} games</span>
@@ -59,6 +33,6 @@ export default function FormatStatsPanel({ playerId }: { playerId: string }) {
                     ))}
                 </div>
             )}
-        </div>
+        </StatsPanel>
     );
 }

@@ -1,46 +1,23 @@
-import { useEffect, useState } from 'react';
+import StatsPanel from '@/components/ui/StatsPanel';
 import { useApiClient } from '@/hooks/useApiClient';
-
-type Milestone = {
-    type: string;
-    label: string;
-    value: number;
-    icon: string;
-};
-
-type MilestonesData = {
-    milestones: Milestone[];
-    total_completed_games: number;
-};
+import { useAsyncData } from '@/hooks/useAsyncData';
+import type { MilestonesData } from '@/types/stats';
 
 export default function PlayerMilestonesPanel({ playerId }: { playerId: string }) {
     const api = useApiClient(playerId);
-    const [data, setData] = useState<MilestonesData | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        void api.fetchPlayerMilestones(playerId).then((res) => {
-            setData(res.data as MilestonesData);
-            setLoading(false);
-        });
-    }, []);
+    const { data, loading } = useAsyncData<MilestonesData>(() => api.fetchPlayerMilestones(playerId), []);
 
     if (loading) return <div className="text-xs text-white/30">Loading milestones...</div>;
     if (!data || data.milestones.length === 0) {
         return (
-            <div className="w-full rounded border border-white/10 bg-black/60 p-3 backdrop-blur-sm">
-                <div className="mb-2 text-xs text-white/60">Milestones</div>
+            <StatsPanel title="Milestones">
                 <div className="py-4 text-center text-xs text-white/30">Play more to unlock milestones</div>
-            </div>
+            </StatsPanel>
         );
     }
 
     return (
-        <div className="w-full rounded border border-white/10 bg-black/60 p-3 backdrop-blur-sm">
-            <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs text-white/60">Milestones</span>
-                <span className="text-[10px] text-white/30">{data.total_completed_games} games</span>
-            </div>
+        <StatsPanel title="Milestones" titleRight={<span className="text-[10px] text-white/30">{data.total_completed_games} games</span>}>
             <div className="grid grid-cols-2 gap-1.5">
                 {data.milestones.map((m) => (
                     <div key={m.type} className="rounded bg-amber-400/5 border border-amber-400/15 p-2 text-center">
@@ -50,6 +27,6 @@ export default function PlayerMilestonesPanel({ playerId }: { playerId: string }
                     </div>
                 ))}
             </div>
-        </div>
+        </StatsPanel>
     );
 }

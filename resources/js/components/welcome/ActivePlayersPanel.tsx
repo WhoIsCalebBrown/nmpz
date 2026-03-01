@@ -1,15 +1,7 @@
-import { useEffect, useState } from 'react';
+import StatsPanel from '@/components/ui/StatsPanel';
 import { useApiClient } from '@/hooks/useApiClient';
-
-type ActivePlayer = {
-    player_id: string;
-    name: string;
-    elo_rating: number;
-    rank: string;
-    games_played: number;
-    wins: number;
-    win_rate: number;
-};
+import { useAsyncData } from '@/hooks/useAsyncData';
+import type { ActivePlayer } from '@/types/stats';
 
 export default function ActivePlayersPanel({
     playerId,
@@ -19,24 +11,13 @@ export default function ActivePlayersPanel({
     onViewProfile?: (id: string) => void;
 }) {
     const api = useApiClient(playerId);
-    const [players, setPlayers] = useState<ActivePlayer[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        void api.fetchActivePlayers().then((res) => {
-            const data = res.data as { players: ActivePlayer[] };
-            setPlayers(data.players);
-            setLoading(false);
-        });
-    }, []);
+    const { data, loading } = useAsyncData<{ players: ActivePlayer[] }>(() => api.fetchActivePlayers(), []);
+    const players = data?.players ?? [];
 
     if (loading) return <div className="text-xs text-white/30">Loading active players...</div>;
 
     return (
-        <div className="w-full rounded border border-white/10 bg-black/60 p-3 backdrop-blur-sm">
-            <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs text-white/60">Most Active (7 days)</span>
-            </div>
+        <StatsPanel title="Most Active (7 days)">
             {players.length === 0 ? (
                 <div className="py-4 text-center text-xs text-white/30">No recent activity</div>
             ) : (
@@ -62,6 +43,6 @@ export default function ActivePlayersPanel({
                     ))}
                 </div>
             )}
-        </div>
+        </StatsPanel>
     );
 }
