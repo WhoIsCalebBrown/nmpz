@@ -211,9 +211,13 @@ export default function BrowsePanel({
      *
      * Height glides directly from old → new (no collapse).
      * Content fades out, swaps, fades in.
+     *
+     * On first mount or when the wrapper is collapsed (AnimateHeight
+     * is still opening), we skip the inner animation entirely and let
+     * AnimateHeight handle the reveal.
      */
     useEffect(() => {
-        if (targetKey === visibleKey) return;
+        if (!targetKey || targetKey === visibleKey) return;
         clearTimeout(animRef.current);
         const el = panelWrapperRef.current;
 
@@ -221,21 +225,11 @@ export default function BrowsePanel({
         const FADE_OUT = 150;
         const MORPH = 300;
 
-        // --- First mount: no previous content, just enter ---
-        if (!visibleKey || !el) {
+        // First mount, no wrapper, or wrapper still collapsed by
+        // AnimateHeight — just show content, let the outer animation
+        // handle the reveal. No competing transitions.
+        if (!visibleKey || !el || el.offsetHeight === 0) {
             setVisibleKey(targetKey);
-            if (el) {
-                el.style.opacity = '0';
-                el.style.transform = 'translateY(4px)';
-                requestAnimationFrame(() => {
-                    el.style.transition = `opacity ${MORPH}ms ${EASE}, transform ${MORPH}ms ${EASE}`;
-                    el.style.opacity = '1';
-                    el.style.transform = 'translateY(0)';
-                });
-                animRef.current = setTimeout(() => {
-                    if (el) { el.style.transition = ''; el.style.transform = ''; }
-                }, MORPH + 20);
-            }
             return;
         }
 
