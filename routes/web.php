@@ -8,6 +8,7 @@ use App\Http\Controllers\DeclineRematch;
 use App\Http\Controllers\FeaturedMatchController;
 use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GameHistoryController;
+use App\Http\Controllers\GameReportController;
 use App\Http\Controllers\GameRoundsController;
 use App\Http\Controllers\GameSummaryController;
 use App\Http\Controllers\GlobalStatsController;
@@ -156,6 +157,7 @@ Route::get('games/{game}/summary', GameSummaryController::class)->name('games.su
 Route::get('games/{game}/rounds', GameRoundsController::class)->name('games.rounds');
 Route::get('games/{game}/spectate', SpectateGame::class)->name('games.spectate');
 Route::get('games/{game}/replay', ReplayController::class)->name('games.replay');
+Route::get('games/{game}/report', GameReportController::class)->name('games.report');
 Route::post('games/{game}/spectator-chat', SendSpectatorChat::class)->name('games.spectator-chat');
 
 require __DIR__.'/settings.php';
