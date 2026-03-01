@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CancelPrivateLobby;
+use App\Http\Controllers\CommunityHighlightsController;
 use App\Http\Controllers\CreatePrivateLobby;
 use App\Http\Controllers\DailyChallengeController;
 use App\Http\Controllers\DailyChallengeHistoryController;
@@ -151,6 +152,7 @@ Route::get('maps/difficulty', MapDifficultyController::class)->name('maps.diffic
 Route::get('leaderboard', LeaderboardController::class)->name('leaderboard');
 Route::get('leaderboard/movers', LeaderboardMoversController::class)->name('leaderboard.movers');
 Route::get('stats', StatsController::class)->name('stats');
+Route::get('community/highlights', CommunityHighlightsController::class)->name('community.highlights');
 Route::get('stats/dashboard', GlobalStatsController::class)->name('stats.dashboard');
 Route::get('lobby/stats', LobbyStatsController::class)->name('lobby.stats');
 Route::get('queue/status', QueueStatusController::class)->name('queue.status');
