@@ -3,6 +3,7 @@ import type { AxiosInstance } from 'axios';
 export function metaApi(client: AxiosInstance, playerId: string) {
     return {
         fetchStats: () => client.get('/stats'),
+        fetchGlobalStats: () => client.get('/stats/dashboard'),
         fetchLeaderboard: (options?: { sort?: string; rank?: string }) => {
             const params = new URLSearchParams();
             if (options?.sort) params.set('sort', options.sort);

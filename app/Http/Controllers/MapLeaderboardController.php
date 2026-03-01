@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\CacheKeys;
 use App\Enums\GameStatus;
 use App\Models\Game;
 use App\Models\Map;
@@ -13,7 +14,7 @@ class MapLeaderboardController extends Controller
 {
     public function __invoke(Map $map): JsonResponse
     {
-        $cacheKey = "map_leaderboard:{$map->getKey()}";
+        $cacheKey = CacheKeys::mapLeaderboard($map->getKey());
 
         $data = Cache::remember($cacheKey, 300, function () use ($map) {
             $games = Game::query()

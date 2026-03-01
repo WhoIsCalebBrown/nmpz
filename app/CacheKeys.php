@@ -39,4 +39,11 @@ class CacheKeys
     {
         return "solo_leaderboard_{$mode}_" . ($mapId ?? 'all');
     }
+
+    public const GLOBAL_STATS_DASHBOARD = 'global_stats_dashboard';
+
+    public static function mapLeaderboard(string $mapId): string
+    {
+        return "map_leaderboard:{$mapId}";
+    }
 }
