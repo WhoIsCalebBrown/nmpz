@@ -98,6 +98,98 @@ class LeaderboardControllerTest extends TestCase
         $this->assertArrayHasKey('rank', $entry);
     }
 
+    public function test_sort_by_win_rate(): void
+    {
+        $lowWinRate = Player::factory()->create();
+        PlayerStats::create([
+            'player_id' => $lowWinRate->getKey(),
+            'games_played' => 10,
+            'games_won' => 2,
+            'games_lost' => 8,
+        ]);
+
+        $highWinRate = Player::factory()->create();
+        PlayerStats::create([
+            'player_id' => $highWinRate->getKey(),
+            'games_played' => 3,
+            'games_won' => 3,
+            'games_lost' => 0,
+        ]);
+
+        $response = $this->getJson('/leaderboard?sort=win_rate')
+            ->assertOk()
+            ->assertJsonCount(2);
+
+        $data = $response->json();
+        $this->assertSame($highWinRate->getKey(), $data[0]['player_id']);
+    }
+
+    public function test_sort_by_elo_rating(): void
+    {
+        $lowElo = Player::factory()->withElo(800)->create();
+        PlayerStats::create([
+            'player_id' => $lowElo->getKey(),
+            'games_played' => 10,
+            'games_won' => 8,
+            'games_lost' => 2,
+        ]);
+
+        $highElo = Player::factory()->withElo(2000)->create();
+        PlayerStats::create([
+            'player_id' => $highElo->getKey(),
+            'games_played' => 5,
+            'games_won' => 3,
+            'games_lost' => 2,
+        ]);
+
+        $response = $this->getJson('/leaderboard?sort=elo_rating')
+            ->assertOk()
+            ->assertJsonCount(2);
+
+        $data = $response->json();
+        $this->assertSame($highElo->getKey(), $data[0]['player_id']);
+    }
+
+    public function test_filter_by_rank(): void
+    {
+        $goldPlayer = Player::factory()->withElo(1200)->create();
+        PlayerStats::create([
+            'player_id' => $goldPlayer->getKey(),
+            'games_played' => 5,
+            'games_won' => 3,
+            'games_lost' => 2,
+        ]);
+
+        $masterPlayer = Player::factory()->withElo(2100)->create();
+        PlayerStats::create([
+            'player_id' => $masterPlayer->getKey(),
+            'games_played' => 5,
+            'games_won' => 4,
+            'games_lost' => 1,
+        ]);
+
+        $response = $this->getJson('/leaderboard?rank=Gold')
+            ->assertOk()
+            ->assertJsonCount(1);
+
+        $response->assertJsonPath('0.player_id', $goldPlayer->getKey());
+    }
+
+    public function test_invalid_sort_falls_back_to_games_won(): void
+    {
+        $player = Player::factory()->create();
+        PlayerStats::create([
+            'player_id' => $player->getKey(),
+            'games_played' => 5,
+            'games_won' => 3,
+            'games_lost' => 2,
+        ]);
+
+        $this->getJson('/leaderboard?sort=invalid_column')
+            ->assertOk()
+            ->assertJsonCount(1);
+    }
+
     public function test_limits_to_50_entries(): void
     {
         for ($i = 0; $i < 55; $i++) {
