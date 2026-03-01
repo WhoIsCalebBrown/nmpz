@@ -6,7 +6,9 @@ import FriendsPanel from '@/components/welcome/FriendsPanel';
 import GameHistoryPanel from '@/components/welcome/GameHistoryPanel';
 import GlobalRecordsPanel from '@/components/welcome/GlobalRecordsPanel';
 import Leaderboard from '@/components/welcome/Leaderboard';
+import LeaderboardMoversPanel from '@/components/welcome/LeaderboardMoversPanel';
 import LiveGamesList from '@/components/welcome/LiveGamesList';
+import MapDifficultyPanel from '@/components/welcome/MapDifficultyPanel';
 import PlayerStatsPanel from '@/components/welcome/PlayerStatsPanel';
 import SeasonPanel from '@/components/welcome/SeasonPanel';
 import SoloLeaderboardPanel from '@/components/welcome/SoloLeaderboardPanel';
@@ -14,7 +16,7 @@ import { Eye, User, Users } from 'lucide-react';
 
 type ActiveGroup = 'none' | 'profile' | 'community' | 'watch';
 type ProfileTab = 'stats' | 'history' | 'achievements' | 'season' | 'solo';
-type CommunityTab = 'leaderboard' | 'friends' | 'highlights' | 'active' | 'records';
+type CommunityTab = 'leaderboard' | 'friends' | 'highlights' | 'active' | 'records' | 'movers' | 'maps';
 
 function Divider({ label }: { label: string }) {
     return (
@@ -46,6 +48,8 @@ const COMMUNITY_TABS: { key: CommunityTab; label: string }[] = [
     { key: 'highlights', label: 'highlights' },
     { key: 'active', label: 'active' },
     { key: 'records', label: 'records' },
+    { key: 'movers', label: 'movers' },
+    { key: 'maps', label: 'maps' },
 ];
 
 export default function BrowsePanel({
@@ -135,6 +139,8 @@ export default function BrowsePanel({
         'community-highlights': <CommunityHighlightsPanel playerId={playerId} />,
         'community-active': <ActivePlayersPanel playerId={playerId} onViewProfile={onViewProfile} />,
         'community-records': <GlobalRecordsPanel playerId={playerId} onViewProfile={onViewProfile} />,
+        'community-movers': <LeaderboardMoversPanel playerId={playerId} onViewProfile={onViewProfile} />,
+        'community-maps': <MapDifficultyPanel playerId={playerId} />,
         'watch': <LiveGamesList playerId={playerId} />,
     };
 
