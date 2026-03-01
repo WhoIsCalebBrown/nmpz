@@ -15,6 +15,7 @@ use App\Http\Controllers\LiveGamesController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\PlayerAchievementsController;
 use App\Http\Controllers\PlayerLeavesQueue;
+use App\Http\Controllers\PlayerSearchController;
 use App\Http\Controllers\PlayerMakesGuess;
 use App\Http\Controllers\PlayerProfileController;
 use App\Http\Controllers\PlayerStatsController;
@@ -97,6 +98,7 @@ Route::get('players/{player}/stats', PlayerStatsController::class)->name('player
 Route::get('players/{player}/games', [GameHistoryController::class, 'index'])->name('players.games');
 Route::get('players/{player}/achievements', PlayerAchievementsController::class)->name('players.achievements');
 Route::get('players/{player}/profile', PlayerProfileController::class)->name('players.profile');
+Route::get('players/search', PlayerSearchController::class)->name('players.search');
 
 // ─── Global ───
 Route::get('maps', MapController::class)->name('maps.index');

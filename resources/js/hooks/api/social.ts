@@ -13,5 +13,6 @@ export function socialApi(client: AxiosInstance, playerId: string) {
         removeFriend: (friendshipId: string) =>
             client.delete(`/players/${playerId}/friends/${friendshipId}`),
         fetchPendingFriends: () => client.get(`/players/${playerId}/friends/pending`),
+        searchPlayers: (query: string) => client.get(`/players/search?q=${encodeURIComponent(query)}`),
     };
 }
