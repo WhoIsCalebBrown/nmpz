@@ -12,6 +12,7 @@ use App\Http\Controllers\GameHistoryController;
 use App\Http\Controllers\GameReportController;
 use App\Http\Controllers\GameRoundsController;
 use App\Http\Controllers\GameSummaryController;
+use App\Http\Controllers\GlobalRecordsController;
 use App\Http\Controllers\GlobalStatsController;
 use App\Http\Controllers\HeadToHeadController;
 use App\Http\Controllers\HeadToHeadMapsController;
@@ -164,6 +165,7 @@ Route::get('leaderboard/movers', LeaderboardMoversController::class)->name('lead
 Route::get('stats', StatsController::class)->name('stats');
 Route::get('community/highlights', CommunityHighlightsController::class)->name('community.highlights');
 Route::get('stats/dashboard', GlobalStatsController::class)->name('stats.dashboard');
+Route::get('stats/records', GlobalRecordsController::class)->name('stats.records');
 Route::get('lobby/stats', LobbyStatsController::class)->name('lobby.stats');
 Route::get('queue/status', QueueStatusController::class)->name('queue.status');
 Route::get('matchmaking/stats', MatchmakingStatsController::class)->name('matchmaking.stats');
