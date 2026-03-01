@@ -8,6 +8,7 @@ export function socialApi(client: AxiosInstance, playerId: string) {
         fetchPlayerStreaks: (targetPlayerId: string) => client.get(`/players/${targetPlayerId}/streaks`),
         fetchPlayerEloHistory: (targetPlayerId: string, limit?: number) =>
             client.get(`/players/${targetPlayerId}/elo-history${limit ? `?limit=${limit}` : ''}`),
+        fetchPlayerRanking: (targetPlayerId: string) => client.get(`/players/${targetPlayerId}/ranking`),
         fetchFriends: () => client.get(`/players/${playerId}/friends`),
         sendFriendRequest: (receiverId: string) =>
             client.post(`/players/${playerId}/friends`, { receiver_id: receiverId }),
