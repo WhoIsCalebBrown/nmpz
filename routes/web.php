@@ -20,6 +20,7 @@ use App\Http\Controllers\MapLeaderboardController;
 use App\Http\Controllers\PlayerAchievementsController;
 use App\Http\Controllers\PlayerActivityController;
 use App\Http\Controllers\PlayerActivityFeedController;
+use App\Http\Controllers\PlayerComparisonController;
 use App\Http\Controllers\PlayerLeavesQueue;
 use App\Http\Controllers\PlayerMilestonesController;
 use App\Http\Controllers\PlayerSearchController;
@@ -111,6 +112,7 @@ Route::get('players/{player}/milestones', PlayerMilestonesController::class)->na
 Route::get('players/{player}/activity-feed', PlayerActivityFeedController::class)->name('players.activity-feed');
 Route::get('players/search', PlayerSearchController::class)->name('players.search');
 Route::get('players/{player}/head-to-head/{opponent}', HeadToHeadController::class)->name('players.head-to-head');
+Route::get('players/{player}/compare/{opponent}', PlayerComparisonController::class)->name('players.compare');
 
 // ─── Global ───
 Route::get('maps', MapController::class)->name('maps.index');

@@ -17,6 +17,7 @@ export function socialApi(client: AxiosInstance, playerId: string) {
         fetchPendingFriends: () => client.get(`/players/${playerId}/friends/pending`),
         searchPlayers: (query: string) => client.get(`/players/search?q=${encodeURIComponent(query)}`),
         fetchHeadToHead: (opponentId: string) => client.get(`/players/${playerId}/head-to-head/${opponentId}`),
+        compareWithPlayer: (opponentId: string) => client.get(`/players/${playerId}/compare/${opponentId}`),
         sendHeartbeat: () => client.post(`/players/${playerId}/heartbeat`),
         fetchPlayerActivity: (playerIds: string[]) =>
             client.post('/players/activity', { player_ids: playerIds }),
