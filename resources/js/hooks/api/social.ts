@@ -11,6 +11,7 @@ export function socialApi(client: AxiosInstance, playerId: string) {
         fetchPlayerRanking: (targetPlayerId: string) => client.get(`/players/${targetPlayerId}/ranking`),
         fetchPlayerRecords: (targetPlayerId: string) => client.get(`/players/${targetPlayerId}/records`),
         fetchPlayerRivals: (targetPlayerId: string) => client.get(`/players/${targetPlayerId}/rivals`),
+        fetchPlayerFavoriteMaps: (targetPlayerId: string) => client.get(`/players/${targetPlayerId}/favorite-maps`),
         fetchFriends: () => client.get(`/players/${playerId}/friends`),
         sendFriendRequest: (receiverId: string) =>
             client.post(`/players/${playerId}/friends`, { receiver_id: receiverId }),
