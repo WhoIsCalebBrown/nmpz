@@ -56,17 +56,17 @@ export default function RoundSummaryPanel({
             <table className="w-full" style={{ borderSpacing: 0 }}>
                 <thead>
                     <tr className="text-white/40">
-                        <th className="w-24 text-center font-normal"></th>
-                        <th className={`w-28 text-center font-normal ${myColor}`}>You</th>
-                        <th className={`w-28 text-center font-normal ${opponentColor}`}>{opponentName}</th>
+                        <th className="w-24 pr-4 text-left font-normal"></th>
+                        <th className={`w-28 px-4 text-left font-normal ${myColor}`}>You</th>
+                        <th className={`pl-4 text-right font-normal ${opponentColor}`}>{opponentName}</th>
                     </tr>
                 </thead>
                 <tbody>
                     {rows.map((row) => (
                         <tr key={row.label} className="text-white/80">
-                            <td className="pt-1 text-center text-white/40">{row.label}</td>
-                            <td className={`pt-1 text-center ${myColor}`}>{row.me}</td>
-                            <td className={`pt-1 text-center ${opponentColor}`}>{row.opponent}</td>
+                            <td className="pr-4 pt-1 text-left text-white/40">{row.label}</td>
+                            <td className={`px-4 pt-1 text-left ${myColor}`}>{row.me}</td>
+                            <td className={`pl-4 pt-1 text-right whitespace-nowrap ${opponentColor}`}>{row.opponent}</td>
                         </tr>
                     ))}
                 </tbody>
