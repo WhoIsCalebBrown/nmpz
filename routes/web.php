@@ -16,6 +16,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JoinPrivateLobby;
 use App\Http\Controllers\JoinQueue;
 use App\Http\Controllers\LeaderboardController;
+use App\Http\Controllers\LeaderboardMoversController;
 use App\Http\Controllers\LiveGamesController;
 use App\Http\Controllers\LobbyStatsController;
 use App\Http\Controllers\MapController;
@@ -140,6 +141,7 @@ Route::get('maps/{map}/leaderboard', MapLeaderboardController::class)->name('map
 Route::get('maps/{map}/stats', MapStatsController::class)->name('maps.stats');
 Route::get('maps/top-players', TopPlayersByMapController::class)->name('maps.top-players');
 Route::get('leaderboard', LeaderboardController::class)->name('leaderboard');
+Route::get('leaderboard/movers', LeaderboardMoversController::class)->name('leaderboard.movers');
 Route::get('stats', StatsController::class)->name('stats');
 Route::get('stats/dashboard', GlobalStatsController::class)->name('stats.dashboard');
 Route::get('lobby/stats', LobbyStatsController::class)->name('lobby.stats');

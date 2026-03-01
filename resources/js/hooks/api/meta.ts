@@ -4,6 +4,7 @@ export function metaApi(client: AxiosInstance, playerId: string) {
     return {
         fetchStats: () => client.get('/stats'),
         fetchGlobalStats: () => client.get('/stats/dashboard'),
+        fetchLeaderboardMovers: () => client.get('/leaderboard/movers'),
         fetchLeaderboard: (options?: { sort?: string; rank?: string }) => {
             const params = new URLSearchParams();
             if (options?.sort) params.set('sort', options.sort);
