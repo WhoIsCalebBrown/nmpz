@@ -14,6 +14,7 @@ export function metaApi(client: AxiosInstance, playerId: string) {
         fetchPlayerStats: () => client.get(`/players/${playerId}/stats`),
         fetchMaps: () => client.get('/maps'),
         fetchMapLeaderboard: (mapId: string) => client.get(`/maps/${mapId}/leaderboard`),
+        fetchMapStats: (mapId: string) => client.get(`/maps/${mapId}/stats`),
         fetchGameHistory: (page = 1) => client.get(`/players/${playerId}/games?page=${page}`),
         fetchGameDetail: (gameId: string) => client.get(`/games/${gameId}/history`),
         fetchGameSummary: (gameId: string) => client.get(`/games/${gameId}/summary`),

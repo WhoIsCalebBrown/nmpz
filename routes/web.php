@@ -17,6 +17,7 @@ use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\LiveGamesController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\MapLeaderboardController;
+use App\Http\Controllers\MapStatsController;
 use App\Http\Controllers\PlayerAchievementsController;
 use App\Http\Controllers\PlayerActivityController;
 use App\Http\Controllers\PlayerActivityFeedController;
@@ -117,6 +118,7 @@ Route::get('players/{player}/compare/{opponent}', PlayerComparisonController::cl
 // ─── Global ───
 Route::get('maps', MapController::class)->name('maps.index');
 Route::get('maps/{map}/leaderboard', MapLeaderboardController::class)->name('maps.leaderboard');
+Route::get('maps/{map}/stats', MapStatsController::class)->name('maps.stats');
 Route::get('leaderboard', LeaderboardController::class)->name('leaderboard');
 Route::get('stats', StatsController::class)->name('stats');
 Route::get('stats/dashboard', GlobalStatsController::class)->name('stats.dashboard');
