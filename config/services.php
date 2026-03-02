@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'mapillary' => [
+        'access_token' => env('MAPILLARY_ACCESS_TOKEN', env('VITE_MAPILLARY_ACCESS_TOKEN')),
+        'bbox_delta' => 0.0005,
+    ],
+
 ];

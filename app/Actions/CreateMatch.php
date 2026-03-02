@@ -19,7 +19,7 @@ class CreateMatch
             ? Map::query()->findOrFail($mapId)
             : Map::query()->where('name', config('game.default_map'))->firstOrFail();
 
-        $locationCount = Location::query()->where('map_id', $map->getKey())->count();
+        $locationCount = Location::query()->where('map_id', $map->getKey())->available()->count();
 
         abort_if($locationCount === 0, 500, 'No locations available.');
 
@@ -47,6 +47,7 @@ class CreateMatch
         ]);
 
         $location = Location::query()->where('map_id', $map->getKey())
+            ->available()
             ->orderBy('id')
             ->offset($seed % $locationCount)
             ->firstOrFail();

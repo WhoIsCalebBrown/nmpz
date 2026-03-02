@@ -25,6 +25,7 @@ class DailyChallengeService
 
         $map = Map::query()->where('name', config('game.default_map'))->firstOrFail();
         $locations = Location::where('map_id', $map->getKey())
+            ->available()
             ->inRandomOrder()
             ->limit(5)
             ->get();

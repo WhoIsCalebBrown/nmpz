@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,7 +21,13 @@ class Location extends Model
             'lat' => 'float',
             'lng' => 'float',
             'heading' => 'integer',
+            'blacklisted_at' => 'datetime',
         ];
+    }
+
+    public function scopeAvailable(Builder $query): Builder
+    {
+        return $query->whereNull('blacklisted_at');
     }
 
     public function map(): BelongsTo

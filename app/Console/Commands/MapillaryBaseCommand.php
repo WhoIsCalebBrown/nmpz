@@ -10,9 +10,9 @@ abstract class MapillaryBaseCommand extends Command
 {
     protected function requireToken(): ?string
     {
-        $token = env('VITE_MAPILLARY_ACCESS_TOKEN');
+        $token = config('services.mapillary.access_token');
         if (! $token) {
-            $this->error('VITE_MAPILLARY_ACCESS_TOKEN is not set.');
+            $this->error('Mapillary access token is not configured. Set MAPILLARY_ACCESS_TOKEN or VITE_MAPILLARY_ACCESS_TOKEN.');
         }
 
         return $token;

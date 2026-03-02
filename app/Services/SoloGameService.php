@@ -56,6 +56,7 @@ class SoloGameService
         }
 
         $locations = Location::where('map_id', $map->getKey())
+            ->available()
             ->inRandomOrder()
             ->limit($locationCount)
             ->get();
@@ -203,6 +204,7 @@ class SoloGameService
             $locationIds = $game->location_ids;
             if ($nextIndex >= count($locationIds) && in_array($game->mode, ['streak', 'explorer'])) {
                 $moreLocations = Location::where('map_id', $game->map_id)
+                    ->available()
                     ->inRandomOrder()
                     ->limit(50)
                     ->get();

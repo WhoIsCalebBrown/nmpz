@@ -14,9 +14,8 @@ class CloneLikeacwMapillaryTest extends TestCase
 
     private function clearToken(): ?string
     {
-        $original = getenv('VITE_MAPILLARY_ACCESS_TOKEN') ?: null;
-        putenv('VITE_MAPILLARY_ACCESS_TOKEN');
-        unset($_ENV['VITE_MAPILLARY_ACCESS_TOKEN'], $_SERVER['VITE_MAPILLARY_ACCESS_TOKEN']);
+        $original = config('services.mapillary.access_token');
+        config(['services.mapillary.access_token' => null]);
 
         return $original;
     }
@@ -24,9 +23,7 @@ class CloneLikeacwMapillaryTest extends TestCase
     private function restoreToken(?string $token): void
     {
         if ($token) {
-            putenv("VITE_MAPILLARY_ACCESS_TOKEN={$token}");
-            $_ENV['VITE_MAPILLARY_ACCESS_TOKEN'] = $token;
-            $_SERVER['VITE_MAPILLARY_ACCESS_TOKEN'] = $token;
+            config(['services.mapillary.access_token' => $token]);
         }
     }
 
@@ -64,7 +61,7 @@ class CloneLikeacwMapillaryTest extends TestCase
             '--output' => 'test-clone.jsonl',
             '--sleep' => 0,
         ])
-            ->expectsOutput('VITE_MAPILLARY_ACCESS_TOKEN is not set.')
+            ->expectsOutput('Mapillary access token is not configured. Set MAPILLARY_ACCESS_TOKEN or VITE_MAPILLARY_ACCESS_TOKEN.')
             ->assertExitCode(1);
 
         $this->restoreToken($original);

@@ -19,4 +19,9 @@ class LocationFactory extends Factory
             'heading' => $this->faker->numberBetween(0, 359),
         ];
     }
+
+    public function blacklisted(): static
+    {
+        return $this->state(['blacklisted_at' => now()]);
+    }
 }
