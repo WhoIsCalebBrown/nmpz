@@ -480,6 +480,7 @@ function WelcomePage({
                                 onReact={(r) => void api.sendReaction(r)}
                                 gameOver={gameOver}
                                 countdownConfig={countdownConfig}
+                                onForfeit={actions.handleForfeit}
                             />
                         )}
 

@@ -205,7 +205,7 @@ class GameCompletionService
         return false;
     }
 
-    private function finalize(Game $game): void
+    public function finalize(Game $game): void
     {
         $this->playerStatsService->recordGameEnd($game);
         EloCalculator::calculate($game);

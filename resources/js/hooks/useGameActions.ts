@@ -108,6 +108,11 @@ export function useGameActions({
         setRematchState('declined');
     }, [lastGameId, game?.id, api]);
 
+    const handleForfeit = useCallback(() => {
+        if (!game) return;
+        void api.forfeitGame(game.id);
+    }, [game?.id, api]);
+
     return {
         guess,
         updateGuess,
@@ -116,5 +121,6 @@ export function useGameActions({
         handleRequeue,
         handleExit,
         handleDeclineRematch,
+        handleForfeit,
     };
 }

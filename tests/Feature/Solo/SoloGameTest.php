@@ -154,16 +154,26 @@ class SoloGameTest extends TestCase
         $response->assertUnprocessable();
     }
 
-    public function test_start_rejects_duplicate_in_progress(): void
+    public function test_start_auto_abandons_existing_in_progress_game(): void
     {
         $this->setupMap(50);
         $player = Player::factory()->create();
 
-        $this->postJson("/players/{$player->getKey()}/solo/start", ['mode' => 'explorer']);
+        $firstResponse = $this->postJson("/players/{$player->getKey()}/solo/start", ['mode' => 'explorer']);
+        $firstGameId = $firstResponse->json('game_id');
 
-        $response = $this->postJson("/players/{$player->getKey()}/solo/start", ['mode' => 'explorer']);
-        $response->assertUnprocessable();
-        $response->assertJson(['error' => 'You already have a solo game in progress']);
+        $secondResponse = $this->postJson("/players/{$player->getKey()}/solo/start", ['mode' => 'explorer']);
+        $secondResponse->assertOk();
+        $secondGameId = $secondResponse->json('game_id');
+
+        $this->assertNotEquals($firstGameId, $secondGameId);
+
+        $oldGame = SoloGame::find($firstGameId);
+        $this->assertEquals('abandoned', $oldGame->status);
+        $this->assertNotNull($oldGame->completed_at);
+
+        $newGame = SoloGame::find($secondGameId);
+        $this->assertEquals('in_progress', $newGame->status);
     }
 
     public function test_start_uses_default_map_when_none_specified(): void

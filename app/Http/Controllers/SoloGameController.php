@@ -28,7 +28,7 @@ class SoloGameController extends Controller
             ->first();
 
         if ($existing) {
-            return response()->json(['error' => 'You already have a solo game in progress'], 422);
+            $service->abandon($existing);
         }
 
         $game = $service->start($player, $validated['mode'], $validated['map_id'] ?? null, $validated);

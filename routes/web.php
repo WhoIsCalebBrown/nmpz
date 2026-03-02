@@ -8,6 +8,7 @@ use App\Http\Controllers\DailyChallengeController;
 use App\Http\Controllers\DailyChallengeHistoryController;
 use App\Http\Controllers\DeclineRematch;
 use App\Http\Controllers\FeaturedMatchController;
+use App\Http\Controllers\ForfeitGame;
 use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GameHistoryController;
 use App\Http\Controllers\GameReportController;
@@ -90,6 +91,7 @@ Route::middleware('game.player')->group(function () {
     Route::post('players/{player}/games/{game}/rematch', RequestRematch::class)->name('games.rematch');
     Route::post('players/{player}/games/{game}/decline-rematch', DeclineRematch::class)->name('games.decline-rematch');
     Route::post('players/{player}/games/{game}/reaction', SendReaction::class);
+    Route::post('players/{player}/games/{game}/forfeit', ForfeitGame::class)->name('games.forfeit');
 });
 
 // ─── Solo play ───

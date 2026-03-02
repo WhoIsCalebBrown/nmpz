@@ -37,6 +37,8 @@ export function multiplayerApi(client: AxiosInstance, playerId: string, game: Ga
             if (!game) return Promise.resolve(null);
             return client.post(`/players/${playerId}/games/${game.id}/reaction`, { reaction });
         },
+        forfeitGame: (gameId: string) =>
+            client.post(`/players/${playerId}/games/${gameId}/forfeit`),
         createPrivateLobby: (mapId?: string, matchFormat?: string) =>
             client.post(`/players/${playerId}/private-lobby`, {
                 ...(mapId ? { map_id: mapId } : {}),

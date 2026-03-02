@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import ChatSidebar from '@/components/welcome/ChatSidebar';
 import { CountdownTimer } from '@/components/welcome/CountdownTimer';
 import HealthBar from '@/components/welcome/HealthBar';
@@ -39,6 +40,7 @@ export default function GameHud({
     onReact,
     gameOver,
     countdownConfig,
+    onForfeit,
 }: {
     me: PlayerHudConfig;
     opponent: OpponentHudConfig;
@@ -54,6 +56,7 @@ export default function GameHud({
     onReact: (reaction: string) => void;
     gameOver: boolean;
     countdownConfig: { value: number; label: string; valueClass: string } | null;
+    onForfeit: () => void;
 }) {
     return (
         <>
@@ -99,6 +102,7 @@ export default function GameHud({
                 <div className="pointer-events-auto rounded bg-black/50 px-2 py-1.5 backdrop-blur-sm">
                     <ReactionBar onReact={onReact} disabled={gameOver} />
                 </div>
+                {!gameOver && <LeaveGameButton onForfeit={onForfeit} />}
             </div>
 
             {/* Countdown timer */}
@@ -127,5 +131,38 @@ export default function GameHud({
                 )}
             </div>
         </>
+    );
+}
+
+function LeaveGameButton({ onForfeit }: { onForfeit: () => void }) {
+    const [confirming, setConfirming] = useState(false);
+
+    if (confirming) {
+        return (
+            <div className="pointer-events-auto flex gap-2 rounded bg-black/50 px-3 py-2 backdrop-blur-sm">
+                <span className="text-xs text-neutral-400">Forfeit match?</span>
+                <button
+                    onClick={onForfeit}
+                    className="text-xs font-bold text-red-400 hover:text-red-300"
+                >
+                    Yes
+                </button>
+                <button
+                    onClick={() => setConfirming(false)}
+                    className="text-xs text-neutral-400 hover:text-neutral-300"
+                >
+                    No
+                </button>
+            </div>
+        );
+    }
+
+    return (
+        <button
+            onClick={() => setConfirming(true)}
+            className="pointer-events-auto rounded bg-black/50 px-3 py-1.5 text-xs text-neutral-500 backdrop-blur-sm hover:text-neutral-300"
+        >
+            Leave Game
+        </button>
     );
 }
