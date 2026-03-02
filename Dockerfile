@@ -23,6 +23,15 @@ COPY . .
 # Run post-install scripts (package discovery, etc.)
 RUN composer run-script post-autoload-dump
 
+# VITE_ vars are baked into JS at build time — pass via build args
+ARG VITE_REVERB_APP_KEY
+ARG VITE_REVERB_HOST
+ARG VITE_REVERB_PORT
+ARG VITE_REVERB_SCHEME
+ARG VITE_MAPILLARY_ACCESS_TOKEN
+ARG VITE_GOOGLE_MAPS_KEY
+ARG VITE_APP_NAME=NMPZ
+
 # Build frontend assets (wayfinder plugin needs PHP + artisan)
 RUN npm run build
 

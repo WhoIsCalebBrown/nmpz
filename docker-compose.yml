@@ -3,6 +3,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        VITE_REVERB_APP_KEY: ${VITE_REVERB_APP_KEY}
+        VITE_REVERB_HOST: ${VITE_REVERB_HOST}
+        VITE_REVERB_PORT: ${VITE_REVERB_PORT}
+        VITE_REVERB_SCHEME: ${VITE_REVERB_SCHEME}
+        VITE_MAPILLARY_ACCESS_TOKEN: ${VITE_MAPILLARY_ACCESS_TOKEN}
+        VITE_GOOGLE_MAPS_KEY: ${VITE_GOOGLE_MAPS_KEY}
+        VITE_APP_NAME: ${VITE_APP_NAME:-NMPZ}
+    image: nmpz-app
     env_file: .env
     volumes:
       - ./.env:/var/www/html/.env:ro
@@ -48,14 +57,14 @@ services:
       - nmpz
 
   reverb:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: nmpz-app
     env_file: .env
     volumes:
       - ./.env:/var/www/html/.env:ro
     command: php artisan reverb:start --host=0.0.0.0 --port=8085
     depends_on:
+      app:
+        condition: service_started
       postgres:
         condition: service_healthy
     restart: unless-stopped
@@ -63,14 +72,14 @@ services:
       - nmpz
 
   worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: nmpz-app
     env_file: .env
     volumes:
       - ./.env:/var/www/html/.env:ro
     command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
     depends_on:
+      app:
+        condition: service_started
       postgres:
         condition: service_healthy
     restart: unless-stopped
@@ -78,14 +87,14 @@ services:
       - nmpz
 
   scheduler:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: nmpz-app
     env_file: .env
     volumes:
       - ./.env:/var/www/html/.env:ro
     command: php artisan schedule:work
     depends_on:
+      app:
+        condition: service_started
       postgres:
         condition: service_healthy
     restart: unless-stopped
